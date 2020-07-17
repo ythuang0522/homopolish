@@ -39,6 +39,7 @@ def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir,
     out = []
     output_dir = FileManager.handle_output_directory(output_dir)
 
+    total_start_time = time.time()
     for contig in SeqIO.parse(assembly, 'fasta'):
         timestr = time.strftime("[%Y/%m/%d %H:%M]")
         sys.stderr.write(TextColor.GREEN + str(timestr) +" INFO: RUN-ID: "+ contig.id + "\n" + TextColor.END)
@@ -67,6 +68,8 @@ def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir,
             pileup_start_time = time.time()
             print_system_log('PILE UP')
             db_npz = alignment.align(contig_name, minimap_args, threads, db, contig_output_dir)
+            if db_npz == False:
+                continue
             pileup_end_time = time.time()            
   
 
@@ -108,3 +111,6 @@ def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir,
         else:
             out.append(contig_name)
     os.system('cat {} > {}/final.fasta'.format(' '.join(out), output_dir))
+    total_end_time = time.time()
+    total_time = get_elapsed_time_string(total_start_time, total_end_time)
+    print_stage_time('Total', total_time)
