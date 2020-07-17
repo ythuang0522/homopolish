@@ -22,12 +22,20 @@ def add_polish_arguments(parser):
         required=True,
         help="[REQUIRED] Path to a trained model (pkl file). Please see our github page to see options."
     )
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
         "-s",
         "--sketch_path",
         type=str,
-        required=True,
-        help="[REQUIRED] Path to a mash sketch file."
+        required=False,
+        help="Path to a mash sketch file."
+    )
+    group.add_argument(
+        "-g",
+        "--genus",
+        type=str,
+        required=False,
+        help="Genus name"
     )
     parser.add_argument(
         "-t",
@@ -66,6 +74,7 @@ def add_polish_arguments(parser):
         default='20',
         help="How much contig to download from NCBI. [20]"
     )
+    
 
     return parser
 
@@ -87,8 +96,8 @@ def main():
 
     FLAGS, unparsed = parser.parse_known_args()
     if FLAGS.sub_command == 'polish':
-
-        polish_genome(FLAGS.assembly, FLAGS.model_path, FLAGS.sketch_path, FLAGS.threads, \
+        
+        polish_genome(FLAGS.assembly, FLAGS.model_path, FLAGS.sketch_path, FLAGS.genus, FLAGS.threads, \
                 FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums)
 
     elif FLAGS.version is True:

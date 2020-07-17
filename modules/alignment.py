@@ -114,7 +114,9 @@ def align(draft, minimap_args, threads, db, path):
 
     minimap2_cmd = 'minimap2 -cx {asm} --cs=long -t {thread} {draft} {db} > {paf}'\
         .format(asm=minimap_args, thread=threads, draft=draft, db=db, paf=paf)
-    os.system(minimap2_cmd)    
+    os.system(minimap2_cmd)   
+    if os.stat(paf).st_size == 0: #minimap2 can't align return false
+        return False
     arr, coverage, ins = pileup(paf, genome_size)
     np.savez(npz, arr=arr, coverage=coverage, ins=ins)
     return npz

@@ -29,7 +29,23 @@ def parser_url(ncbi_id):
             url_list.append(url)
     return url_list
 
+def parser_genus(genus):
+    
+    url = "https://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt"
 
+    response = requests.get(url)
+    html_doc = response.text
+
+    line = html_doc.split("\n")
+    ftp = []
+
+    for i in range(2, len(line) - 1):
+        element = line[i].split("\t")
+        if genus in element[7]:
+            print(element[19])
+            ftp.append(element[19])
+    return ftp
+    
 def download(path, ncbi_id, url_list): 
 
     db_dir = path + '/db/'
