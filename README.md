@@ -5,7 +5,7 @@ Homopolish is a Nanopore-specific polisher able to generate a high-quality genom
 Homopolish is recommendated to install and run within a conda environment
 
 	git clone https://github.com/ythuang0522/homopolish.git
-	conda install environment.yml
+	conda env create -f environment.yml
 	conda activate homopolish
 
 # Download virus, bacteria, or fungi sketches
