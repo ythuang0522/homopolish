@@ -1,0 +1,19 @@
+name: homopolish
+channels:
+  - anaconda
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.7.7
+  - mash=2.1.1
+  - scikit-learn=0.21.3
+  - minimap2=2.17
+  - python-wget=3.2
+  - feather-format=0.4.1
+  - numpy=1.18.5
+  - pandas=0.23.4
+  - biopython=1.76
+  - joblib=0.15.1
+  - requests=2.24.0
+  - more-itertools=8.4.0
