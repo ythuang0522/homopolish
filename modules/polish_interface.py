@@ -34,7 +34,7 @@ def get_elapsed_time_string(start_time, end_time):
 
     return time_string
 
-def polish_genome(assembly, model_path, sketch_path, threads, output_dir, minimap_args, mash_threshold, download_contig_nums):    
+def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir, minimap_args, mash_threshold, download_contig_nums):    
     
     out = []
     output_dir = FileManager.handle_output_directory(output_dir)

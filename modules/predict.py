@@ -10,9 +10,6 @@ from modules import preprocessing as p
 def predict(dataframe, model, thread, path):    
 
     df = feather.read_dataframe(dataframe)
-    deletion = df[df['gap'] > 0]
-    insertion = df[df['draft'] == '-']
-    df = pd.concat((deletion, insertion)).reset_index(drop=True)
 
     result = df
     df = p.haplotype(df)
