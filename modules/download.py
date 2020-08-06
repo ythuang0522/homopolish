@@ -37,14 +37,17 @@ def parser_genus(genus):
     html_doc = response.text
 
     line = html_doc.split("\n")
-    ftp = []
+    ncbi_id = []
+    url_list = []
 
     for i in range(2, len(line) - 1):
         element = line[i].split("\t")
         if genus in element[7]:
-            print(element[19])
-            ftp.append(element[19])
-    return ftp
+            filename = element[19].split('/')[-1]
+            ftp = element[19] + "/" + filename + "_genomic.fna.gz"
+            ncbi_id.append(element[0])
+            url_list.append(ftp)
+    return ncbi_id, url_list
     
 def download(path, ncbi_id, url_list): 
 
