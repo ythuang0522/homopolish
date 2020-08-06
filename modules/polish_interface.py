@@ -48,68 +48,73 @@ def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir,
         contig_name = contig_output_dir + '/' + contig.id +'.fasta'
         SeqIO.write(contig, contig_name, "fasta")
         
-        screen_start_time = time.time()
-        print_system_log('MASH SCREEN')
-        mash_file = mash.screen(assembly, sketch_path, threads, contig_output_dir, mash_threshold, download_contig_nums, contig.id)
-        screen_end_time = time.time()
+        if sketch_path:
+            screen_start_time = time.time()
+            print_system_log('MASH SCREEN')
+            mash_file = mash.screen(assembly, sketch_path, threads, contig_output_dir, mash_threshold, download_contig_nums, contig.id)
+            screen_end_time = time.time()
 
-        ncbi_id = mash.get_ncbi_id(mash_file)  
-        
-        #Would'nt polish if closely-related genomes less than 5
-        if len(ncbi_id) > 5: 
-
-            download_start_time = time.time()
-            print_system_log('DOWNLOAD CONTIGS')
-            url_list = download.parser_url(ncbi_id)
-            db = download.download(contig_output_dir, ncbi_id, url_list)
-            download_end_time = time.time()           
-
-
-            pileup_start_time = time.time()
-            print_system_log('PILE UP')
-            db_npz = alignment.align(contig_name, minimap_args, threads, db, contig_output_dir)
-            if db_npz == False:
+            ncbi_id = mash.get_ncbi_id(mash_file)  
+            if len(ncbi_id) < 5: #Would'nt polish if closely-related genomes less than 5
+                out.append(contig_name)
                 continue
-            pileup_end_time = time.time()            
-  
-
-            align2df_start_time = time.time()           
-            print_system_log('TO DATAFRAME')
-            df = align2df.todf(contig_name, db_npz, contig_output_dir)
-            align2df_end_time = time.time()
             
+            url_list = download.parser_url(ncbi_id)
+
+        if genus:
+            ncbi_id, url_list = download.parser_genus(genus)      
         
-            predict_start_time = time.time()
-            print_system_log('PREDICT')
-            df = contig_output_dir + '/' + contig.id + '.feather'
-            result = predict.predict(df, model_path, threads, contig_output_dir)
-            predict_end_time = time.time()
+        download_start_time = time.time()
+        print_system_log('DOWNLOAD CONTIGS')              
+        db = download.download(contig_output_dir, ncbi_id, url_list)
+        download_end_time = time.time()           
 
 
-            polish_start_time = time.time()
-            print_system_log('POLISH')
-            finish = polish.stitch(contig_name, result, contig_output_dir)
-            polish_end_time = time.time()
-            
+        pileup_start_time = time.time()
+        print_system_log('PILE UP')
+        db_npz = alignment.align(contig_name, minimap_args, threads, db, contig_output_dir)
+        if db_npz == False:
+            continue
+        pileup_end_time = time.time()            
 
-            #calculating time
+
+        align2df_start_time = time.time()           
+        print_system_log('TO DATAFRAME')
+        df = align2df.todf(contig_name, db_npz, contig_output_dir)
+        align2df_end_time = time.time()
+        
+    
+        predict_start_time = time.time()
+        print_system_log('PREDICT')
+        df = contig_output_dir + '/' + contig.id + '.feather'
+        result = predict.predict(df, model_path, threads, contig_output_dir)
+        predict_end_time = time.time()
+
+
+        polish_start_time = time.time()
+        print_system_log('POLISH')
+        finish = polish.stitch(contig_name, result, contig_output_dir)
+        polish_end_time = time.time()
+        
+        if sketch_path:
             screen_time = get_elapsed_time_string(screen_start_time, screen_end_time)
-            download_time = get_elapsed_time_string(download_start_time, download_end_time)
-            pileup_time = get_elapsed_time_string(pileup_start_time, pileup_end_time)
-            align2df_time = get_elapsed_time_string(align2df_start_time, align2df_end_time)
-            predict_time = get_elapsed_time_string(predict_start_time, predict_end_time)
-            polish_time = get_elapsed_time_string(polish_start_time, polish_end_time)
-            
-            #print stage time
             print_stage_time('SCREEN', screen_time)
-            print_stage_time('DOWNLOAD', download_time)
-            print_stage_time('PILEUP', pileup_time)
-            print_stage_time('TO DATAFRAME', align2df_time)
-            print_stage_time('PREDICT', predict_time)
-            print_stage_time('POLISH', polish_time)
-            out.append(finish)
-        else:
-            out.append(contig_name)
+
+        #calculating time        
+        download_time = get_elapsed_time_string(download_start_time, download_end_time)
+        pileup_time = get_elapsed_time_string(pileup_start_time, pileup_end_time)
+        align2df_time = get_elapsed_time_string(align2df_start_time, align2df_end_time)
+        predict_time = get_elapsed_time_string(predict_start_time, predict_end_time)
+        polish_time = get_elapsed_time_string(polish_start_time, polish_end_time)
+        
+        #print stage time       
+        print_stage_time('DOWNLOAD', download_time)
+        print_stage_time('PILEUP', pileup_time)
+        print_stage_time('TO DATAFRAME', align2df_time)
+        print_stage_time('PREDICT', predict_time)
+        print_stage_time('POLISH', polish_time)
+        out.append(finish)
+            
     os.system('cat {} > {}/final.fasta'.format(' '.join(out), output_dir))
     total_end_time = time.time()
     total_time = get_elapsed_time_string(total_start_time, total_end_time)
