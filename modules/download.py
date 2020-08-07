@@ -15,12 +15,13 @@ def checkInternetRequests(url='http://www.google.com/', timeout=3):
         return False
 
 def run_process(id, url, path):
+    path = path + '/'
     if 'ftp' in url:
         wget.download(url, path)
-    else:        
+    else:
         r = requests.get(url, allow_redirects=True)
         open('{}{}.fasta'.format(path, id), 'wb').write(r.content)
-    
+
 
 def parser_url(ncbi_id):
     url_list = []
@@ -60,17 +61,17 @@ def parser_genus(genus):
     
 def download(path, ncbi_id, url_list): 
 
-    db_dir = path + '/db/'
+    db_dir = path + '/homologous_sequences/'
     db_dir = FileManager.handle_output_directory(db_dir)
     max_pool_size = 3 #API rate limit exceeded, can't go higher
     cpus = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(cpus if cpus < max_pool_size else max_pool_size)
     for id, url in zip(ncbi_id, url_list):
         pool.apply_async(run_process, args=(id, url, db_dir))
-    pool.close()    
-    pool.join()  
+    pool.close()
+    pool.join()
 
     file_path = db_dir + '/*'
-    db_path = path + '/db.fna.gz'
-    os.system('cat {} > {}'.format(file_path, db_path)) 
+    db_path = path + '/All_homologous_sequences.fna.gz'
+    os.system('cat {} > {}'.format(file_path, db_path))
     return db_path

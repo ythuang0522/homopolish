@@ -74,7 +74,13 @@ def add_polish_arguments(parser):
         default='20',
         help="How much contig to download from NCBI. [20]"
     )
-    
+    parser.add_argument(
+        "-d",
+        "--debug",
+        required=False,
+        action = "store_false",
+        help="Keep the information of every contig after mash, such as homologous sequences and its identity infomation. [no]"
+    )
 
     return parser
 
@@ -98,7 +104,7 @@ def main():
     if FLAGS.sub_command == 'polish':
         
         polish_genome(FLAGS.assembly, FLAGS.model_path, FLAGS.sketch_path, FLAGS.genus, FLAGS.threads, \
-                FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums)
+                FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums, FLAGS.debug)
 
     elif FLAGS.version is True:
         print("Homopolish VERSION: ", __version__)

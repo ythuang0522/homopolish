@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import shutil
 from Bio import SeqIO
 from modules import mash
 from modules import download
@@ -34,16 +35,20 @@ def get_elapsed_time_string(start_time, end_time):
 
     return time_string
 
-def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir, minimap_args, mash_threshold, download_contig_nums):    
+def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug):    
     
     out = []
     output_dir = FileManager.handle_output_directory(output_dir)
+    contig_output_dir_debug = output_dir + '/debug'
+    contig_output_dir_debug = FileManager.handle_output_directory(contig_output_dir_debug)
+    assembly_name = assembly.rsplit('/',1)[-1]
+    assembly_name = assembly_name.split('.')[0]
 
     total_start_time = time.time()
     for contig in SeqIO.parse(assembly, 'fasta'):
         timestr = time.strftime("[%Y/%m/%d %H:%M]")
         sys.stderr.write(TextColor.GREEN + str(timestr) +" INFO: RUN-ID: "+ contig.id + "\n" + TextColor.END)
-        contig_output_dir = output_dir + '/' + contig.id
+        contig_output_dir = contig_output_dir_debug + '/' + contig.id
         contig_output_dir = FileManager.handle_output_directory(contig_output_dir)
         contig_name = contig_output_dir + '/' + contig.id +'.fasta'
         SeqIO.write(contig, contig_name, "fasta")
@@ -51,7 +56,7 @@ def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir,
         if sketch_path:
             screen_start_time = time.time()
             print_system_log('MASH SCREEN')
-            mash_file = mash.screen(assembly, sketch_path, threads, contig_output_dir, mash_threshold, download_contig_nums, contig.id)
+            mash_file = mash.screen(contig_name, sketch_path, threads, contig_output_dir, mash_threshold, download_contig_nums, contig.id)
             screen_end_time = time.time()
 
             ncbi_id = mash.get_ncbi_id(mash_file)  
@@ -71,6 +76,7 @@ def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir,
 
 
         pileup_start_time = time.time()
+        print("\n")
         print_system_log('PILE UP')
         db_npz = alignment.align(contig_name, minimap_args, threads, db, contig_output_dir)
         if db_npz == False:
@@ -114,8 +120,18 @@ def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir,
         print_stage_time('PREDICT', predict_time)
         print_stage_time('POLISH', polish_time)
         out.append(finish)
-            
-    os.system('cat {} > {}/final.fasta'.format(' '.join(out), output_dir))
+
+    
+    os.system('cat {} > {}/{}_homopolished.fasta'.format(' '.join(out), output_dir, assembly_name))
+
+    if debug:
+        try:
+            shutil.rmtree(contig_output_dir_debug)
+        except OSError as e:
+            print(e)
+        else:
+            return True
+
     total_end_time = time.time()
     total_time = get_elapsed_time_string(total_start_time, total_end_time)
     print_stage_time('Total', total_time)
