@@ -1,11 +1,11 @@
 import os
 import sys
 
-def screen(assembly, sketch_path, threads, output_dir, mash_threshold, download_contig_nums, contig_id):
+def screen(contig_name, sketch_path, threads, output_dir, mash_threshold, download_contig_nums, contig_id):
     
     mash_out = '{}/{}.sort.tab'.format(output_dir, contig_id)
     mash_cmd = 'mash screen -p {thread} -i {ratio} {db} {draft} > temp.tab'\
-            .format(thread=threads, ratio=mash_threshold, db=sketch_path, draft=assembly)    
+            .format(thread=threads, ratio=mash_threshold, db=sketch_path, draft=contig_name)    
     sort_cmd = 'sort -gr temp.tab > temp.sort.tab'
     head_cmd = 'head -n {num} temp.sort.tab > {out}'.format(num=download_contig_nums, out=mash_out)
     os.system(mash_cmd)
