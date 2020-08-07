@@ -5,6 +5,15 @@ import requests
 import multiprocessing
 from modules.FileManager import FileManager
 
+
+def checkInternetRequests(url='http://www.google.com/', timeout=3):
+    try:
+        r = requests.head(url, timeout=timeout)
+        return True
+    except requests.ConnectionError as ex:
+        print(ex)
+        return False
+
 def run_process(id, url, path):
     if 'ftp' in url:
         wget.download(url, path)
