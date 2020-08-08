@@ -81,6 +81,13 @@ def add_polish_arguments(parser):
         action = "store_false",
         help="Keep the information of every contig after mash, such as homologous sequences and its identity infomation. [no]"
     )
+    parser.add_argument(
+        "--mash_screen",
+        required=False,
+        action='store_true',
+        default=False,
+        help="mash screen "
+    )
 
     return parser
 
@@ -103,7 +110,7 @@ def main():
     FLAGS, unparsed = parser.parse_known_args()
     if FLAGS.sub_command == 'polish':
         
-        polish_genome(FLAGS.assembly, FLAGS.model_path, FLAGS.sketch_path, FLAGS.genus, FLAGS.threads, \
+        polish_genome(FLAGS,FLAGS.assembly, FLAGS.model_path, FLAGS.sketch_path, FLAGS.genus, FLAGS.threads, \
                 FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums, FLAGS.debug)
 
     elif FLAGS.version is True:

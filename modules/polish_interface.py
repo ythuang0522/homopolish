@@ -35,7 +35,7 @@ def get_elapsed_time_string(start_time, end_time):
 
     return time_string
 
-def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug):    
+def polish_genome(FLAGS,assembly, model_path, sketch_path, genus, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug):    
     
     out = []
     output_dir = FileManager.handle_output_directory(output_dir)
@@ -55,16 +55,28 @@ def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir,
         
         if sketch_path:
             screen_start_time = time.time()
-            print_system_log('MASH SCREEN')
-            mash_file = mash.screen(contig_name, sketch_path, threads, contig_output_dir, mash_threshold, download_contig_nums, contig.id)
-            screen_end_time = time.time()
+            if FLAGS.mash_screen:
+                print_system_log('MASH SCREEN')
+                mash_file = mash.screen(contig_name, sketch_path, threads, contig_output_dir, mash_threshold, download_contig_nums, contig.id)
+                screen_end_time = time.time()
 
-            ncbi_id = mash.get_ncbi_id(mash_file)  
-            if len(ncbi_id) < 5: #Would'nt polish if closely-related genomes less than 5
-                out.append(contig_name)
-                continue
+                ncbi_id = mash.get_ncbi_id(mash_file)  
+                if len(ncbi_id) < 5: #Would'nt polish if closely-related genomes less than 5
+                    out.append(contig_name)
+                    continue
             
-            url_list = download.parser_url(ncbi_id)
+                url_list = download.parser_url(ncbi_id)
+            else :
+                print_system_log('MASH DIST')
+                mash_file = mash.dist(contig_name, sketch_path, threads, contig_output_dir, mash_threshold , download_contig_nums, contig.id)
+                screen_end_time = time.time()
+
+                ncbi_id = mash.dist_get_ncbi_id(mash_file)  
+                if len(ncbi_id) < 5: #Would'nt polish if closely-related genomes less than 5
+                    out.append(contig_name)
+                    continue
+            
+                url_list = download.parser_url(ncbi_id)
 
         if genus:
             ncbi_id, url_list = download.parser_genus(genus)      
@@ -104,7 +116,10 @@ def polish_genome(assembly, model_path, sketch_path, genus, threads, output_dir,
         
         if sketch_path:
             screen_time = get_elapsed_time_string(screen_start_time, screen_end_time)
-            print_stage_time('SCREEN', screen_time)
+            if FLAGS.mash_screen:
+                print_stage_time('SCREEN', screen_time)
+            else:
+                print_stage_time('DIST', screen_time)
 
         #calculating time        
         download_time = get_elapsed_time_string(download_start_time, download_end_time)
