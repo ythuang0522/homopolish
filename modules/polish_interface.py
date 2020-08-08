@@ -54,29 +54,20 @@ def polish_genome(FLAGS,assembly, model_path, sketch_path, genus, threads, outpu
         SeqIO.write(contig, contig_name, "fasta")
         
         if sketch_path:
-            screen_start_time = time.time()
+            mash_start_time = time.time()
             if FLAGS.mash_screen:
                 print_system_log('MASH SCREEN')
-                mash_file = mash.screen(contig_name, sketch_path, threads, contig_output_dir, mash_threshold, download_contig_nums, contig.id)
-                screen_end_time = time.time()
-
-                ncbi_id = mash.get_ncbi_id(mash_file)  
-                if len(ncbi_id) < 5: #Would'nt polish if closely-related genomes less than 5
-                    out.append(contig_name)
-                    continue
-            
-                url_list = download.parser_url(ncbi_id)
+                mash_file = mash.screen(contig_name, sketch_path, threads, contig_output_dir, mash_threshold, download_contig_nums, contig.id)                
             else :
                 print_system_log('MASH DIST')
                 mash_file = mash.dist(contig_name, sketch_path, threads, contig_output_dir, mash_threshold , download_contig_nums, contig.id)
-                screen_end_time = time.time()
 
-                ncbi_id = mash.dist_get_ncbi_id(mash_file)  
-                if len(ncbi_id) < 5: #Would'nt polish if closely-related genomes less than 5
-                    out.append(contig_name)
-                    continue
-            
-                url_list = download.parser_url(ncbi_id)
+            mash_end_time = time.time()
+            ncbi_id = mash.get_ncbi_id(mash_file)  
+            if len(ncbi_id) < 5: #Would'nt polish if closely-related genomes less than 5
+                out.append(contig_name)
+                continue        
+            url_list = download.parser_url(ncbi_id)
 
         if genus:
             ncbi_id, url_list = download.parser_genus(genus)      
@@ -113,15 +104,15 @@ def polish_genome(FLAGS,assembly, model_path, sketch_path, genus, threads, outpu
         print_system_log('POLISH')
         finish = polish.stitch(contig_name, result, contig_output_dir)
         polish_end_time = time.time()
-        
-        if sketch_path:
-            screen_time = get_elapsed_time_string(screen_start_time, screen_end_time)
-            if FLAGS.mash_screen:
-                print_stage_time('SCREEN', screen_time)
-            else:
-                print_stage_time('DIST', screen_time)
 
-        #calculating time        
+        #calculating time
+        if sketch_path:
+            mash_time = get_elapsed_time_string(mash_start_time, mash_end_time)
+            if FLAGS.mash_screen:
+                print_stage_time('MASH SCREEN', mash_time)
+            else:
+                print_stage_time('MASH DIST', mash_time)
+                
         download_time = get_elapsed_time_string(download_start_time, download_end_time)
         pileup_time = get_elapsed_time_string(pileup_start_time, pileup_end_time)
         align2df_time = get_elapsed_time_string(align2df_start_time, align2df_end_time)

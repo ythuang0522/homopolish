@@ -86,7 +86,7 @@ def add_polish_arguments(parser):
         required=False,
         action='store_true',
         default=False,
-        help="mash screen "
+        help="Use mash screen. [mash dist]"
     )
 
     return parser

@@ -32,18 +32,13 @@ def dist(contig_name, sketch_path, threads, output_dir,mash_threshold ,download_
     return mash_out
     
     
-def get_ncbi_id(mashfile):
+def get_ncbi_id(mashfile, mash_screen=None):
     ncbi_id = []
     with open(mashfile,'r') as f:
         for line in f:
             line = line.split()
-            ncbi_id.append(line[4])    
-    return ncbi_id
-
-def dist_get_ncbi_id(mashfile):
-    ncbi_id = []
-    with open(mashfile,'r') as f:
-        for line in f:
-            line = line.split()
-            ncbi_id.append(line[0])    
+            if mash_screen: 
+                ncbi_id.append(line[4]) #Use mash screen
+			else:
+    			ncbi_id.append(line[0]) #Use mash dist
     return ncbi_id
