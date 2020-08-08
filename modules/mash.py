@@ -37,8 +37,8 @@ def get_ncbi_id(mashfile, mash_screen=None):
     with open(mashfile,'r') as f:
         for line in f:
             line = line.split()
-            if mash_screen: 
+            if mash_screen:
                 ncbi_id.append(line[4]) #Use mash screen
-			else:
-    			ncbi_id.append(line[0]) #Use mash dist
+            else:
+                ncbi_id.append(line[0]) #Use mash dist
     return ncbi_id
