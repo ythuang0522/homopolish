@@ -65,7 +65,7 @@ def add_polish_arguments(parser):
         type=str,
         required=False,
         default='0.95',
-        help="Mash screen output threshold. [0.95]"
+        help="Mash output threshold. [0.95]"
     )
     parser.add_argument(
         "--download_contig_nums",
