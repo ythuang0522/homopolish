@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
 from multiprocessing import Pool
-
+from modules.preprocessing import *
 
 def predict(dataframe, model, thread, path):    
 
