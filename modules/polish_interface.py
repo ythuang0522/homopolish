@@ -9,8 +9,8 @@ from modules import alignment
 from modules import align2df
 from modules import prediction
 from modules import polish
-from modules.TextColor import TextColor
-from modules.FileManager import FileManager
+from modules.utils.TextColor import TextColor
+from modules.utils.FileManager import FileManager
 
 def print_system_log(stage):
     timestr = time.strftime("[%Y/%m/%d %H:%M]")

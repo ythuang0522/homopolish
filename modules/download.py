@@ -3,7 +3,7 @@ import sys
 import wget
 import requests
 import multiprocessing
-from modules.FileManager import FileManager
+from modules.utils.FileManager import FileManager
 
 
 def checkInternetRequests(url='http://www.google.com/', timeout=3):

@@ -5,11 +5,11 @@ import pandas as pd
 from os import listdir
 from os.path import isfile, join
 from modules import preprocessing as p
-from modules.FileManager import FileManager
+from modules.utils.FileManager import FileManager
 from sklearn.svm import SVC
 from multiprocessing import Pool
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix,classification_report, accuracy_score
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
 
 def get_file_paths_from_directory(directory_path):
     """
