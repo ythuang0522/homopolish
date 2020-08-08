@@ -2,14 +2,19 @@ import numpy as np
 import pandas as pd
 from Bio import SeqIO
 
-def todf(draft, db_np, path):
+def todf(draft, db_np, path, truth_np=None):
     
     nuc_dict = {0:'A',1:'T',2:'C',3:'G'} 
     record = SeqIO.read(draft, "fasta")
     genome_size = len(record)
-    np_arr = np.load(db_np)  
 
-    arr, coverage, ins = np_arr['arr'], np_arr['coverage'], np_arr['ins']
+    db_arr = np.load(db_np)
+    arr, coverage, ins = db_arr['arr'], db_arr['coverage'], db_arr['ins']
+
+    if truth_np: # include label for output
+        truth_arr = np.load(truth_np)
+        truth_arr, truth_coverage, truth_ins = truth_arr['arr'], truth_arr['coverage'], truth_arr['ins']
+        label = []
 
     position = []
     draft = []
@@ -48,6 +53,13 @@ def todf(draft, db_np, path):
                     i -= 1
                 i = temp
                 homo.append(count)
+                if truth_np:
+                    if not truth_ins[i][j].any(): #truth: no insertion
+                        label.append(6)              
+                    else:
+                        for k in range(4):
+                            if truth_ins[i][j][k] != 0: # truth : insertion A/T/C/G
+                                label.append(k)
                 
     deletion = np.where(arr[:,4]!=0)[0]
     for i in deletion:
@@ -78,9 +90,14 @@ def todf(draft, db_np, path):
         i = index
 
         homo.append(count)
+        if truth_np:
+            if truth_arr[i][4] > 0:
+                label.append(4)
+            else:
+                label.append(5)
     
-             
-    dict = {"position": position,
+          
+    df_dict = {"position": position,
             "draft": draft,
             "A": A,
             "T": T,
@@ -94,7 +111,9 @@ def todf(draft, db_np, path):
             "coverage": cov,
             "homopolymer": homo
         }
+    if truth_np:
+        df_dict.update({'label': label})
     df_path = path + '/{}.feather'.format(record.id)
-    df = pd.DataFrame(dict)
+    df = pd.DataFrame(df_dict)
     df.to_feather(df_path)    
     return df_path
