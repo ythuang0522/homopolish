@@ -17,7 +17,7 @@ def print_system_log(stage):
     sys.stderr.write(TextColor.GREEN + str(timestr) +" INFO: Stage: "+ stage + "\n" + TextColor.END)
 
 def print_stage_time(stage, time):
-    sys.stderr.write(TextColor.PURPLE + " TIME "+ stage + ": " + str(time) + "\n" + TextColor.END)
+    sys.stderr.write(TextColor.PURPLE + "TIME "+ stage + ": " + str(time) + "\n" + TextColor.END)
         
 def get_elapsed_time_string(start_time, end_time):
     """
@@ -50,7 +50,7 @@ def select_closely_related(sketch_path, genus, mash_screen, contig_name, threads
         ncbi_id, url_list = download.parser_genus(genus)
              
     db_path = download.download(output_dir, ncbi_id, url_list)
-    print('')
+    
     return db_path
 
 def homologous_retrieval(assembly, minimap_args, threads, sequence, output_dir, reference=None):
@@ -118,6 +118,10 @@ def polish_genome(mash_screen, assembly, model_path, sketch_path, genus, threads
     
     os.system('cat {} > {}/{}_homopolished.fasta'.format(' '.join(out), output_dir, assembly_name))
 
+    total_end_time = time.time()
+    total_time = get_elapsed_time_string(total_start_time, total_end_time)
+    print_stage_time('Total', total_time)
+
     if debug:
         try:
             shutil.rmtree(contig_output_dir_debug)
@@ -125,9 +129,6 @@ def polish_genome(mash_screen, assembly, model_path, sketch_path, genus, threads
             print(e)
         else:
             return True
-    total_end_time = time.time()
-    total_time = get_elapsed_time_string(total_start_time, total_end_time)
-    print_stage_time('Total', total_time)
 
 def make_train_data(mash_screen, assembly, reference, sketch_path, genus, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug): 
     output_dir = FileManager.handle_output_directory(output_dir)
@@ -163,6 +164,11 @@ def make_train_data(mash_screen, assembly, reference, sketch_path, genus, thread
         print_stage_time('Select closely-related genomes', collect_time)
         print_stage_time('Homologous retrieval', homologous_time)
         shutil.move(dataframe_path, output_dir)
+
+    total_end_time = time.time()
+    total_time = get_elapsed_time_string(total_start_time, total_end_time)
+    print_stage_time('Total', total_time)
+
     if debug:
         try:
             shutil.rmtree(contig_output_dir_debug)
@@ -170,6 +176,3 @@ def make_train_data(mash_screen, assembly, reference, sketch_path, genus, thread
             print(e)
         else:
             return True
-    total_end_time = time.time()
-    total_time = get_elapsed_time_string(total_start_time, total_end_time)
-    print_stage_time('Total', total_time)

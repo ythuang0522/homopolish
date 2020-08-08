@@ -74,4 +74,5 @@ def download(path, ncbi_id, url_list):
     file_path = db_dir + '/*'
     db_path = path + '/All_homologous_sequences.fna.gz'
     os.system('cat {} > {}'.format(file_path, db_path))
+    print('')
     return db_path

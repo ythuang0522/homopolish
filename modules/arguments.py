@@ -94,7 +94,7 @@ def add_polish_arguments(parser):
     )    
 def add_train_arguments(parser):
     """
-    Add arguments to a parser for sub-command "polish"
+    Add arguments to a parser for sub-command "train"
     :param parser: argeparse object
     :return:
     """
@@ -133,7 +133,7 @@ def add_train_arguments(parser):
 
 def add_train_data_arguments(parser):
     """
-    Add arguments to a parser for sub-command "polish"
+    Add arguments to a parser for sub-command "make_train_data"
     :param parser: argeparse object
     :return:
     """
