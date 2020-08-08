@@ -4,16 +4,14 @@ import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
 from multiprocessing import Pool
-from sklearn.preprocessing import MinMaxScaler
-from modules import preprocessing as p 
+from modules.preprocessing import *
 
 def predict(dataframe, model, thread, path):    
 
     df = feather.read_dataframe(dataframe)
-
     result = df
-    df = p.haplotype(df)
-    df = p.preprocessing(df)
+    df = haplotype(df)
+    df = preprocessing(df)
 
     size = 1000
     list_of_X = [df.loc[i:i+size-1,:] for i in range(0, len(df), size)]
