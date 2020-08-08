@@ -11,9 +11,9 @@ Homopolish is recommendated to install and run within a conda environment
 # Download virus, bacteria, or fungi sketches
 Homopolish makes uses of compressed genomes (Mash sketches) for identifying most-similar genomic sequences. The pre-sketches (virus/bacteria/fungi) can be downloaded.
 
-	Virus: wget
-	Bacteria: wget 
-	Fungi: wget
+	Virus: wget http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/virus.msh.gz
+	Bacteria: wget http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/bacteria.msh.gz
+	Fungi: wget http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/fungi.msh.gz
 
 # Execution
 Homopolish is reccomended to run in conjunction with one of the three sketches.
