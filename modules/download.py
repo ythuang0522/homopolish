@@ -18,20 +18,21 @@ def checkInternetRequests(url='http://www.google.com/', timeout=3):
 def run_process(id, url, path):
     path = path + '/'
     if 'ftp' in url:
+        filename = '{}{}.fna.gz'.format(path, id)
         try:
-            urllib.request.urlretrieve(url, path)
-        except urllib.error.HTTPError as e:
+            urllib.request.urlretrieve(url, filename)
+        except urllib.error.URLError as e:
             print(e)
+            sys.exit(0)
     else:
         try:
             r = requests.get(url, allow_redirects=True)
             r.raise_for_status()
-        except
-            requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException as e:
             print(e)
+            sys.exit(0)
         open('{}{}.fasta'.format(path, id), 'wb').write(r.content)
-
-
+ 
 def parser_url(ncbi_id):
     url_list = []
     for filename in ncbi_id:
