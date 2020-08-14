@@ -1,5 +1,6 @@
 import os
 import sys
+import urllib.request
 import wget
 import requests
 import multiprocessing
@@ -17,9 +18,17 @@ def checkInternetRequests(url='http://www.google.com/', timeout=3):
 def run_process(id, url, path):
     path = path + '/'
     if 'ftp' in url:
-        wget.download(url, path)
+        try:
+            urllib.request.urlretrieve(url, path)
+        except urllib.error.HTTPError as e:
+            print(e)
     else:
-        r = requests.get(url, allow_redirects=True)
+        try:
+            r = requests.get(url, allow_redirects=True)
+            r.raise_for_status()
+        except
+            requests.exceptions.RequestException as e:
+            print(e)
         open('{}{}.fasta'.format(path, id), 'wb').write(r.content)
 
 
