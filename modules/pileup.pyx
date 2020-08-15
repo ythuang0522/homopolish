@@ -1,9 +1,6 @@
-import os
-import sys
 import numpy as np
-import pileup as pu 
-from Bio import SeqIO
-'''
+cimport numpy as np
+
 LONG_DELETION_LENGTH = 50
 
 def pileup(paf, genome_size):
@@ -18,12 +15,17 @@ def pileup(paf, genome_size):
         coverage: genome each base coverage 
         Ins: genome each base [0-2]: 1st Ins, 2nd Ins, 3rd Ins; [0-3]: ATCG
     """
-    ins_len = 7
-    arr = np.zeros((genome_size, 5), dtype=np.int)
-    coverage = np.zeros(genome_size, dtype=np.int)
-    ins = np.zeros((genome_size, ins_len, 4), dtype=np.int)
-    
-    over_ins = []  
+    cdef int ins_len = 7
+    cdef np.ndarray arr = np.zeros((genome_size, 5), dtype=np.int)
+    cdef np.ndarray coverage = np.zeros(genome_size, dtype=np.int)
+    cdef np.ndarray ins = np.zeros((genome_size, ins_len, 4), dtype=np.int)
+    cdef list over_ins
+    cdef int flag = 0
+    cdef int base = 0 # A/0 T/1 C/2 G/3
+    cdef int longdel_count = 0
+    cdef int longdel_status = 0
+    cdef int mismatch = 0
+    cdef int ins_pos = 0 
     with open(paf, 'r') as f:        
         for line in f:
             line = line.split()            
@@ -34,9 +36,9 @@ def pileup(paf, genome_size):
                 flag = 0
                 longdel_count = 0
                 longdel_status = 0
-                for i in cigar: # ex. =ATC*c
+                for i in cigar: 
                     
-                    if i == 'A' or i == 'a':  # A:0, T:1, C:2, G:3
+                    if i == 'A' or i == 'a':  
                         base = 0
                     elif i == 'T' or i == 't':
                         base = 1
@@ -45,9 +47,9 @@ def pileup(paf, genome_size):
                     elif i == 'G' or i == 'g':
                         base = 3
                     
-                    if i == '=': #match:1
+                    if i == '=': #match
                         flag = 1
-                    elif i == '*': #mismatch:2
+                    elif i == '*': #mismatch
                         flag = 2
                         mismatch = 0
                     elif i == '+': #insertion
@@ -60,25 +62,19 @@ def pileup(paf, genome_size):
                     
                     elif flag == 1:
                         longdel_count = 0
-                        arr[start_pos][base] += 1 #ex. 100bp 為A arr1[100][0] = 1
+                        arr[start_pos][base] += 1 
                         coverage[start_pos] += 1
-                        start_pos += 1 #換下一bp
+                        start_pos += 1 
                     elif flag == 2: 
-                        # *gc
-                        # -01
-                        # 01
                         longdel_count = 0
                         if mismatch != 1:
                             mismatch += 1
                         else:
-                            arr[start_pos][base] += 1 #不對mismatch紀錄
+                            arr[start_pos][base] += 1 
                             coverage[start_pos] += 1 
                             start_pos += 1
                         
                     elif flag == 3: 
-                        #+AAAAA
-                        #-0123
-                        #01234
                         longdel_count = 0
                         if ins_pos < ins_len:
                             ins[start_pos-1][ins_pos][base] += 1
@@ -87,8 +83,7 @@ def pileup(paf, genome_size):
                         elif ins_pos == ins_len:
                             for x,y in zip(range(ins_len), over_ins):
                                 ins[start_pos-1][x][y] -= 1
-                            over_ins = []
-                            
+                            over_ins = []                            
                             
                     elif flag == 4:                    
                         if longdel_status == 0:
@@ -104,20 +99,3 @@ def pileup(paf, genome_size):
                             coverage[start_pos] += 1
                         start_pos+=1
         return arr, coverage, ins
-'''
-def align(draft, minimap_args, threads, db, path): 
-
-    record = SeqIO.read(draft, "fasta")
-    genome_size = len(record)
-
-    paf = '{}/{}.paf'.format(path, record.id)
-    npz = '{}/{}.npz'.format(path, record.id)
-
-    minimap2_cmd = 'minimap2 -cx {asm} --cs=long -t {thread} {draft} {db} > {paf}'\
-        .format(asm=minimap_args, thread=threads, draft=draft, db=db, paf=paf)
-    os.system(minimap2_cmd)   
-    if os.stat(paf).st_size == 0: #minimap2 can't align return false
-        return False
-    arr, coverage, ins = pu.pileup(paf, genome_size)
-    np.savez(npz, arr=arr, coverage=coverage, ins=ins)
-    return npz
