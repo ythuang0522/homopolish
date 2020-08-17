@@ -29,7 +29,8 @@ Homopolish is recommended to run in conjunction with one of the three sketches.
 python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R10.3.pkl -o youroutput
 ```
 This command uses the ```R10.3.pkl``` model and the ```bacteria.msh``` sketch.
-> Other model option: ```R9.4.pkl```
+> Other model option: ```R9.4.pkl``` 
+
 > Other sketchs option: ```virus.msh```, ```fungi.msh```
 
 **train model:**
