@@ -1,5 +1,5 @@
 # Introduction
-Homopolish is a Nanopore-specific polisher able to generate a high-quality genome (Q40-50) for virus, bacteria, and fungus.
+Homopolish is a Nanopore-specific polisher able to generate a high-quality genome (Q40-90, aka >99.99% accuracy) for virus, bacteria, and fungus. The strength of Homopolish lies in correcting Nanopore systematic errors by training a polishing model using homologous sequences retreived from closely-related genomes.
 
 # Installation
 Homopolish is recommendated to install and run within a conda environment
@@ -9,39 +9,29 @@ Homopolish is recommendated to install and run within a conda environment
 	conda activate homopolish
 
 # Download virus, bacteria, or fungi sketches
-Homopolish makes uses of compressed genomes (Mash sketches) for identifying most-similar genomic sequences. The pre-sketches (virus/bacteria/fungi) can be downloaded.
+Homopolish retrieves homologous sequences by scanning microbial genomes compressed in (Mash) sketches. Three sketches of virus, bacteria, and fungi can be downloaded from the following addresses.
 
 	Virus: wget http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/virus.msh.gz
 	Bacteria: wget http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/bacteria.msh.gz
 	Fungi: wget http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/fungi.msh.gz
-**unzip:**
+
+Then unzip the downloaded skeches.
+
 ```
-gunzip FileName.gz
+gunzip bacteria.msh.gz
 ```
-    
     
 # Quick usage
 
-Homopolish is recommended to run in conjunction with one of the three sketches.
-
-**polish:**
-```
-python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R10.3.pkl -o youroutput
-```
-This command uses the ```R10.3.pkl``` model and the ```bacteria.msh``` sketch.
-> Other model option: ```R9.4.pkl``` 
-
-> Other sketchs option: ```virus.msh```, ```fungi.msh```
-
-**train model:**
-```
+Homopolish should be run with a pre-trained model (R9.4.pkl or R10.3.pkl) and one sketch (virus, bacteria, or fungi). For instance, if your genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
 
 ```
+python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
+```
 
+# Other Options and usage
 
-# Options and usage
-
-Run ```python3 homopolish.py polish --help``` to view this program's most commonly used options:
+Run ```python3 homopolish.py polish --help``` to view all the options:
 ```
 usage: homopolish.py polish [-h] -m MODEL_PATH -a ASSEMBLY
                             (-s SKETCH_PATH | -g GENUS) [-t THREADS]
