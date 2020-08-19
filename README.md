@@ -23,8 +23,7 @@ gunzip bacteria.msh.gz
     
 # Quick usage
 
-Homopolish should be run with a pre-trained model (R9.4.pkl or R10.3.pkl) and one sketch (virus, bacteria, or fungi). For instance, if your genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
-
+Homopolish should be run with a pre-trained model (R9.4.pkl or R10.3.pkl) and one sketch (virus, bacteria, or fungi). We note that Homopolish achieves best results when run after Racon or Medaka as it focuses on removing systematic indel errors only. For instance, if your Medaka-polished genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
 ```
 python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
 ```
