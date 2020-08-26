@@ -75,7 +75,7 @@ optional arguments:
 
 All program's output files will be saved in the folder named youroutput(```-o youroutput``` ), and you will only get one file named ```yourgenome_homopolished.fasta```.
 
-**Debuging mode:** 
+**Debugging mode:** 
 
 If you use the parameter ```-d```, directory content in a tree-like format is below.
 * ```homologous_sequences``` contains other homologous species
