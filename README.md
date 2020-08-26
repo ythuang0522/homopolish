@@ -27,6 +27,10 @@ Homopolish should be run with a pre-trained model (R9.4.pkl or R10.3.pkl) and on
 ```
 python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
 ```
+You also can use ```-g``` to set the given Genus name to polish your genome.
+```
+python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -g genusname -m R10.3.pkl -o youroutput
+```
 
 # Other Options and usage
 
@@ -65,3 +69,33 @@ optional arguments:
                         [no]
   --mash_screen         Use mash screen. [mash dist]
 ```
+# Output Files
+
+**Ordinary output:**
+All program's output files will be saved in the folder named youroutput(```-o youroutput``` ), and you will only get one file named ```yourgenome_homopolished.fasta```.
+
+**Debuging mode:**
+If you use the parameter ```-d```, directory content in a tree-like format is below.
+* ```homologous_sequences``` contains other homologous species
+*  ```All_homologous_sequences.fna.gz``` which concatenate all file in ```homologous_sequences```
+
+```
+├── yourgenome_homopolished.fasta
+└── debug
+    ├── contig_1_segment0
+    │   ├── All_homologous_sequences.fna.gz 
+    │   ├── contig_1_segment0.fasta
+    │   ├── contig_1_segment0.feather
+    │   ├── contig_1_segment0.npz
+    │   ├── contig_1_segment0.paf
+    │   ├── contig_1_segment0.sort.tab
+    │   ├── homologous_sequences
+    │   │   ├── GCF_000775955.1_ASM77595v1_genomic.fna.gz
+    │   │   └── .......
+    │   ├── polished.fasta
+    │   └── result.feather
+    ├── contig_2_segment0
+    │   └── ......
+    └── ......
+```
+
