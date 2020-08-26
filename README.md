@@ -29,7 +29,7 @@ python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o 
 ```
 You also can use ```-g``` to set the given Genus name to polish your genome.
 ```
-python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -g genusname -m R10.3.pkl -o youroutput
+python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -g genusname -m R9.4.pkl -o youroutput
 ```
 
 # Other Options and usage
@@ -71,10 +71,12 @@ optional arguments:
 ```
 # Output Files
 
-**Ordinary output:**
+**Ordinary output:** 
+
 All program's output files will be saved in the folder named youroutput(```-o youroutput``` ), and you will only get one file named ```yourgenome_homopolished.fasta```.
 
-**Debuging mode:**
+**Debuging mode:** 
+
 If you use the parameter ```-d```, directory content in a tree-like format is below.
 * ```homologous_sequences``` contains other homologous species
 *  ```All_homologous_sequences.fna.gz``` which concatenate all file in ```homologous_sequences```
