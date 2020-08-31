@@ -23,7 +23,7 @@ def stitch(draft, result, path):
 
     i_position = df[df['predict'] < 4].position.values 
     seq = []
-    seq.append('>{}_homopolish\n'.format(record.id))
+    seq.append('>{}_polish\n'.format(record.id))
     
     pos = np.concatenate((i_position, d_position), axis=0)
     sort_pos = np.sort(np.unique(pos))
