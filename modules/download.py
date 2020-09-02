@@ -65,8 +65,13 @@ def parser_genus(genus):
         if genus in element[7]:
             filename = element[19].split('/')[-1]
             ftp = element[19] + "/" + filename + "_genomic.fna.gz"
-            ncbi_id.append(element[0])
-            url_list.append(ftp)
+            
+            if len(ncbi_id)<20:
+                ncbi_id.append(element[0])
+                url_list.append(ftp)
+            else:
+              break
+
     return ncbi_id, url_list
     
 def download(path, ncbi_id, url_list): 
