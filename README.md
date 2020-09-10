@@ -27,9 +27,9 @@ Homopolish should be run with a pre-trained model (R9.4.pkl or R10.3.pkl) and on
 ```
 python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
 ```
-You also can use ```-g``` to set the given Genus name to polish your genome.
+You also can use ```-g``` to set the given Genus and Species name to polish your genome.
 ```
-python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -g genusname -m R9.4.pkl -o youroutput
+python3 homopolish.py polish -a yourgenome.fasta -g genusname_speciesname -m R9.4.pkl -o youroutput
 ```
 
 # Other Options and usage
