@@ -1,7 +1,6 @@
 import os
 import sys
 import urllib.request
-import wget
 import requests
 import multiprocessing
 from modules.utils.FileManager import FileManager
@@ -49,7 +48,7 @@ def parser_url(ncbi_id):
             url_list.append(url)
     return url_list
 
-def parser_genus(genus):
+def parser_genus_species(genus_species, download_contig_nums=None):
     
     url = "https://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt"
 
@@ -59,23 +58,45 @@ def parser_genus(genus):
     line = html_doc.split("\n")
     ncbi_id = []
     url_list = []
+    allData = []
+
+    if "_" in genus_species:
+        genus_species = genus_species.replace("_", " ")
 
     for i in range(2, len(line) - 1):
         element = line[i].split("\t")
-        if genus in element[7]:
+
+        if genus_species in element[7]:
             filename = element[19].split('/')[-1]
             ftp = element[19] + "/" + filename + "_genomic.fna.gz"
-            
-            if len(ncbi_id)<20:
+
+            if len(ncbi_id) < int(download_contig_nums):
                 ncbi_id.append(element[0])
                 url_list.append(ftp)
+                allData.append(element[7])
             else:
-              break
+                break
+
+    if len(ncbi_id) < int(download_contig_nums):
+        genus_species = genus_species.split(" ")
+
+        for i in range(2, len(line) - 1):
+            element = line[i].split("\t")
+
+            if genus_species[1] not in element[7] and genus_species[0] in element[7]:
+                filename = element[19].split('/')[-1]
+                ftp = element[19] + "/" + filename + "_genomic.fna.gz"
+
+                if len(ncbi_id) < int(download_contig_nums):
+                    ncbi_id.append(element[0])
+                    url_list.append(ftp)
+                    allData.append(element[7])
+                else:
+                    break
 
     return ncbi_id, url_list
     
-def download(path, ncbi_id, url_list): 
-
+def download(path, ncbi_id, url_list):
     db_dir = path + '/homologous_sequences/'
     db_dir = FileManager.handle_output_directory(db_dir)
     max_pool_size = 3 #API rate limit exceeded, can't go higher
