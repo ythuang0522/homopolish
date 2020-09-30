@@ -1,19 +1,21 @@
 # Introduction
-Homopolish is a Nanopore-specific polisher able to generate a high-quality genome (Q40-90, aka >99.99% accuracy) for virus, bacteria, and fungus. The strength of Homopolish lies in correcting Nanopore systematic errors by training a polishing model using homologous sequences retreived from closely-related genomes.
+Homopolish is a Nanopore-specific polisher able to generate a high-quality genome (>Q40) for virus, bacteria, and fungus. The strength of Homopolish lies in correcting Nanopore systematic errors by training a polishing model using homologous sequences retreived from closely-related genomes. In conjunction with Racon or Medaka, the genomes can reach Q40-90 (>99.99%) accuracy on R9.4 flowcells (Guppy 3.x) (see
+[Reference](#reference))
 
 # Installation
 Homopolish is recommendated to install and run within a conda environment
 
 	git clone https://github.com/ythuang0522/homopolish.git
+	cd homopolish
 	conda env create -f environment.yml
 	conda activate homopolish
 
 # Download virus, bacteria, or fungi sketches
-Homopolish retrieves homologous sequences by scanning microbial genomes compressed in (Mash) sketches. Three sketches of virus, bacteria, and fungi can be downloaded from the following addresses.
+Homopolish retrieves homologous sequences by scanning microbial genomes compressed in (Mash) sketches. Three sketches of virus (74Mb), bacteria (719Mb), and fungi (74Mb) can be downloaded from the following addresses using wget or curl.
 
-	Virus: wget http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/virus.msh.gz
-	Bacteria: wget http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/bacteria.msh.gz
-	Fungi: wget http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/fungi.msh.gz
+	Virus: http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/virus.msh.gz
+	Bacteria: http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/bacteria.msh.gz
+	Fungi: http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/fungi.msh.gz
 
 Then unzip the downloaded skeches.
 
@@ -23,7 +25,7 @@ gunzip bacteria.msh.gz
     
 # Quick usage
 
-Homopolish should be run with a pre-trained model (R9.4.pkl or R10.3.pkl) and one sketch (virus, bacteria, or fungi). We note that Homopolish achieves best results when run after Racon or Medaka as it focuses on removing systematic indel errors only. For instance, if your Medaka-polished genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
+Homopolish should be run with a pre-trained model (R9.4.pkl or R10.3.pkl) and one sketch (virus, bacteria, or fungi). We note that Homopolish should be run after Racon or Medaka as it focuses on removing systematic indel errors only. For instance, if your Medaka-polished genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
 ```
 python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
 ```
@@ -100,4 +102,15 @@ If you use the parameter ```-d```, directory content in a tree-like format is be
     │   └── ......
     └── ......
 ```
+
+# Reference
+
+Comparison of genome accuracy polished by Racon, Medaka, MarginPolish, HELEN, and Homopolish on R9.4 Zymo Microbial Community Standard.
+![Accuracy of Homopolish](https://www.biorxiv.org/content/biorxiv/early/2020/09/20/2020.09.19.304949/F1.large.jpg)
+![Accuracy of Homopolish](https://www.biorxiv.org/content/biorxiv/early/2020/09/20/2020.09.19.304949/F2.large.jpg)
+
+Huang et al. High-Quality Genomes of Nanopore Sequencing by Homologous Polishing, doi: https://doi.org/10.1101/2020.09.19.304949
+
+
+
 
