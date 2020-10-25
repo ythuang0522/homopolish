@@ -105,7 +105,7 @@ If you use the parameter ```-d```, directory content in a tree-like format is be
 
 # Reference
 
-Comparison of genome accuracy polished by Racon, Medaka, MarginPolish, HELEN, and Homopolish on R9.4 Zymo Microbial Community Standard.
+Comparison of genome accuracy polished by Racon, Medaka, MarginPolish, HELEN, and Homopolish on R9.4 and on R10.3 Zymo Microbial Community Standard. The R9.4/R10.3 genomes polished by Medaka+Homopolish can be found in the [data](https://github.com/ythuang0522/homopolish/tree/master/data) folder. i.e., R9.4_medaka+homopolish.tar.gz/R10.3_medaka+homopolish.tar.gz vs referehence (truth.tar.gz) with median Q scores computed by [fastmer](https://github.com/jts/assembly_accuracy/blob/master/fastmer.py). 
 ![Accuracy of Homopolish](https://www.biorxiv.org/content/biorxiv/early/2020/09/20/2020.09.19.304949/F1.large.jpg)
 ![Accuracy of Homopolish](https://www.biorxiv.org/content/biorxiv/early/2020/09/20/2020.09.19.304949/F2.large.jpg)
 
