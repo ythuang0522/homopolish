@@ -60,7 +60,7 @@ def homologous_retrieval(assembly, minimap_args, threads, sequence, output_dir, 
 
     seq_npz = alignment.align(assembly, minimap_args, threads, sequence, output_dir)
     if reference:
-        ref_npz = alignment.align(assembly, minimap_args, threads, reference, output_dir)
+        ref_npz = alignment.align(assembly, minimap_args, threads, sequence, output_dir,reference)
         df = align2df.todf(assembly, seq_npz, output_dir, ref_npz)
     else:
         print(seq_npz)
