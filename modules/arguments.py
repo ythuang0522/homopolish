@@ -77,6 +77,13 @@ def add_common_arguments(parser):
         default=False,
         help="Use mash screen. [mash dist]"
     )
+    parser.add_argument(
+        "--meta",
+        required=False,
+        action='store_true',
+        default=False,
+        help="Your assembly genome is metagenome. [no]"
+    )
 
     return parser
 def add_polish_arguments(parser):
