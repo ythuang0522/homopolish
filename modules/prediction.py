@@ -17,6 +17,7 @@ def predict(dataframe, model, thread, path):
     list_of_X = [df.loc[i:i+size-1,:] for i in range(0, len(df), size)]
     
     model = joblib.load(model)
+
     jobs = (delayed(model.predict_proba)(chunk) for chunk in list_of_X)
     parallel = Parallel(n_jobs=thread)
     result_prob = parallel(jobs)
@@ -34,5 +35,7 @@ def predict(dataframe, model, thread, path):
     prediction = path + '/result.feather'
     result['del_prob'] = del_prob
     result['predict'] = predict
+    csvPath = path + 'result.csv'
+    result.to_csv(csvPath)
     result.to_feather(prediction)
     return prediction
