@@ -1,7 +1,10 @@
 import os
 import sys
 import numpy as np
+import time
 from Bio import SeqIO
+from modules.utils.TextColor import TextColor
+from modules.utils.FileManager import FileManager
 
 LONG_DELETION_LENGTH = 50
 
@@ -104,19 +107,31 @@ def pileup(paf, genome_size):
                         start_pos+=1
         return arr, coverage, ins
 
-def align(draft, minimap_args, threads, db, path): 
+def make_output_dir(type, output_dir, contig_id=None):
+    if type=='contig':
+        contig_output_dir = output_dir + '/' + contig_id
+        contig_output_dir = FileManager.handle_output_directory(contig_output_dir)
+        return contig_output_dir
+    else:
+        output_dir_debug = output_dir + '/' + type
+        output_dir_debug = FileManager.handle_output_directory(output_dir_debug)
+        return output_dir_debug
 
-    record = SeqIO.read(draft, "fasta")
-    genome_size = len(record)
+def align(draft, minimap_args, threads, db, path, reference=None):
 
-    paf = '{}/{}.paf'.format(path, record.id)
-    npz = '{}/{}.npz'.format(path, record.id)
+    t_start=time.time()
 
-    minimap2_cmd = 'minimap2 -cx {asm} --cs=long -t {thread} {draft} {db} > {paf}'\
-        .format(asm=minimap_args, thread=threads, draft=draft, db=db, paf=paf)
-    os.system(minimap2_cmd)   
-    if os.stat(paf).st_size == 0: #minimap2 can't align return false
-        return False
-    arr, coverage, ins = pileup(paf, genome_size)
-    np.savez(npz, arr=arr, coverage=coverage, ins=ins)
-    return npz
+    if reference:
+        paf = '{}/truth.paf'.format(path)
+        minimap2_cmd= 'minimap2 -cx asm5 --cs=long -t {thread} {draft} {reference} > {paf}'.format(thread=threads, draft=draft, reference=reference,paf=paf)
+    else:
+        paf = '{}/contig.paf'.format(path)
+        minimap2_cmd = 'minimap2 -cx {asm} --cs=long -t {thread} {draft} {db} > {paf}'\
+            .format(asm=minimap_args, thread=threads, draft=draft, db=db, paf=paf)
+
+    os.system(minimap2_cmd)
+    t_end = time.time()
+    print(t_end-t_start)
+
+    return paf
+

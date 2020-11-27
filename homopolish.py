@@ -5,6 +5,9 @@ from modules.polish_interface import polish_genome
 from modules.polish_interface import make_train_data
 from modules.train_interface import train_model
 
+#import imp
+#imp.find_module('numpy')
+
 
 def main():
     parser = argparse.ArgumentParser(description="Homopolish is a SVM based polisher for polishing ONT-based assemblies. \n"
@@ -35,7 +38,7 @@ def main():
     FLAGS, unparsed = parser.parse_known_args()
     if FLAGS.sub_command == 'polish':        
         polish_genome(FLAGS.mash_screen, FLAGS.assembly, FLAGS.model_path, FLAGS.sketch_path, FLAGS.genus, FLAGS.threads, \
-                FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums, FLAGS.debug)
+                FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums, FLAGS.debug, FLAGS.meta)
 
     elif FLAGS.sub_command == 'train':
         train_model(FLAGS.dataframe_dir, FLAGS.output_dir, FLAGS.output_prefix, FLAGS.threads)

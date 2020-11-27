@@ -115,5 +115,10 @@ def todf(draft, db_np, path, truth_np=None):
         df_dict.update({'label': label})
     df_path = path + '/{}.feather'.format(record.id)
     df = pd.DataFrame(df_dict)
+
+    if df.empty:
+        print('DataFrame is empty!')
+        return False
+
     df.to_feather(df_path)    
     return df_path
