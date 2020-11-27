@@ -2,7 +2,7 @@ import os
 import sys
 from modules.utils.TextColor import TextColor
 
-def screen(contig_name, sketch_path, threads, output_dir, mash_threshold, contig_id=None, download_contig_nums=None):
+def screen(contig_name, sketch_path, threads, output_dir, mash_threshold, contig_id=None, download_contig_nums=None,):
     mash_out = '{}/{}.sort.tab'.format(output_dir, contig_id)
     mash_cmd = 'mash screen -p {thread} -i {ratio} {db} {draft} > temp.tab'\
         .format(thread=threads, ratio=mash_threshold, db=sketch_path, draft=contig_name)
@@ -23,7 +23,7 @@ def screen(contig_name, sketch_path, threads, output_dir, mash_threshold, contig
     return mash_out
 
 
-def dist(contig_name, sketch_path, threads, output_dir,mash_threshold ,download_contig_nums, contig_id):
+def dist(contig_name, sketch_path, threads, output_dir, mash_threshold ,download_contig_nums, contig_id):
     ratios=1- float (mash_threshold)
     mash_out = '{}/{}.sort.tab'.format(output_dir, contig_id)
     mash_cmd = 'mash dist -p {thread} -d {ratio} {db} {draft} > temp.tab'\
