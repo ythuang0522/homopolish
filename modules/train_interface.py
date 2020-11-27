@@ -10,6 +10,7 @@ from sklearn.svm import SVC
 from multiprocessing import Pool
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+import feather
 
 def get_file_paths_from_directory(directory_path):
     """
@@ -23,7 +24,7 @@ def get_file_paths_from_directory(directory_path):
 
 def read_feather(filename):
     'converts a filename to a pandas dataframe'
-    return pd.read_feather(filename)
+    return feather.read_dataframe(filename)
 
 def train_model(train_dir, output_dir, output_prefix, threads):
 
