@@ -36,26 +36,20 @@ def get_elapsed_time_string(start_time, end_time):
 
     return time_string
 
-def select_closely_related(sketch_path, genus_species, mash_screen, threads, output_dir, mash_threshold,
+def mash_select_closely_related(sketch_path, mash_screen, threads, output_dir, mash_threshold,
                            download_contig_nums, contig_name, contig_id):
-    if sketch_path:
-        if mash_screen:
-            mash_file = mash.screen(contig_name, sketch_path, threads, output_dir, mash_threshold, download_contig_nums, contig_id)
-        else:
-            mash_file = mash.dist(contig_name, sketch_path, threads, output_dir, mash_threshold, download_contig_nums,
-                                  contig_id)
+    if mash_screen:
+        mash_file = mash.screen(contig_name, sketch_path, threads, output_dir, mash_threshold, contig_id, download_contig_nums)
+    else:
+        mash_file = mash.dist(contig_name, sketch_path, threads, output_dir, mash_threshold, download_contig_nums,
+                              contig_id)
 
-        ncbi_id = mash.get_ncbi_id(mash_file, mash_screen)
+    ncbi_id = mash.get_ncbi_id(mash_file, mash_screen)
 
-        if len(ncbi_id) < 5:  # Would'nt polish if closely-related genomes less than 5
-            return False
-        url_list = download.parser_url(ncbi_id)
-
-    db_path = download.download(output_dir, ncbi_id, url_list)
-
-    return db_path
+    return ncbi_id
 
 def homologous_retrieval(paf_name, genome_size, contig_output_dir, contig_id, contig_name, ref_paf=None):
+    print_system_log('Homologous retrieval')
     homologous_retrieval_start_time = time.time()
 
     arr, coverage, ins = alignment.pileup(paf_name, genome_size)
@@ -72,7 +66,7 @@ def homologous_retrieval(paf_name, genome_size, contig_output_dir, contig_id, co
     
     homologous_retrieval_end_time = time.time()
     homologous_retrieval_time = get_elapsed_time_string(homologous_retrieval_start_time, homologous_retrieval_end_time)
-    print_stage_time('TIME Homologous retrieval', homologous_retrieval_time)
+    print_stage_time('Homologous retrieval', homologous_retrieval_time)
     return dataframe_path
 
 
@@ -95,18 +89,14 @@ def homopolish(contig_name, minimap_args, threads, db_path, model_path, contig_o
     predict_start_time = time.time()
     result = prediction.predict(dataframe, model_path, threads, contig_output_dir)
     predict_end_time = time.time()
+    predict_time = get_elapsed_time_string(predict_start_time, predict_end_time)
+    print_stage_time('Prediction', predict_time)
 
     print_system_log('Polish')
     polish_start_time = time.time()
     finish = polish.stitch(contig_name, result, contig_output_dir)
     polish_end_time = time.time()
-
-    #calculating time
-    predict_time = get_elapsed_time_string(predict_start_time, predict_end_time)
     polish_time = get_elapsed_time_string(polish_start_time, polish_end_time)
-
-    #print stage time
-    print_stage_time('Prediction', predict_time)
     print_stage_time('Polish', polish_time)
 
     return finish
@@ -134,45 +124,40 @@ def polish_genome(mash_screen, assembly, model_path, sketch_path, genus_species,
         print_system_log('Select closely-related genomes')
         mash_start_time = time.time()
         mash_file = mash.screen(assembly, sketch_path, threads, homologous_output_dir, mash_threshold, "meta")
-        mash_end_time = time.time()
-
-        mash_time = get_elapsed_time_string(mash_start_time, mash_end_time)
-        print_stage_time('Mash time', mash_time)
-
-        collect_start_time = time.time()
         ncbi_id = mash.meta_get_ncbi_id(mash_file, download_contig_nums)
-
+        mash_end_time = time.time()
+        mash_time = get_elapsed_time_string(mash_start_time, mash_end_time)
+        print_stage_time('Select closely_related genomes time', mash_time)
+   
         if len(ncbi_id) < 5:  # Would'nt polish if closely-related genomes less than 5
             sys.stderr.write(TextColor.PURPLE + "Closely-related genomes less than 5, not to polish...\n" + TextColor.END)
             out.append(assembly)
             os.system('cat {} > {}/{}_homopolished.fasta'.format(' '.join(out), output_dir, assembly_name))
             return
 
-        url_list = download.parser_url(ncbi_id)
 
+        download_start_time = time.time()
         print_system_log('Download closely-related genomes')
+        url_list = download.parser_url(ncbi_id)
         sys.stderr.write(TextColor.GREEN + " INFO: " + str(len(url_list)) + " homologous sequence need to download: \n" + TextColor.END)
-        db_path = download.download(homologous_output_dir, ncbi_id, url_list)
-        
-        collect_end_time = time.time()
-
-        collect_time = get_elapsed_time_string(collect_start_time, collect_end_time)
-        print_stage_time('Download closely-related genomes time', collect_time)
+        db_path = download.download(homologous_output_dir, ncbi_id, url_list)       
+        download_end_time = time.time()
+        download_time = get_elapsed_time_string(download_start_time, download_end_time)
+        print_stage_time('Download closely-related genomes time', download_time)
 
 
 
         # alignment
-        print_system_log('Homologous retrieval - Alignment')
-        align_start_time = time.time()
+        # align_start_time = time.time()
         paf = alignment.align(assembly, minimap_args, threads, db_path, output_dir_debug)
 
-        if os.stat(paf).st_size == 0:
-            sys.stderr.write(TextColor.PURPLE + "Minimap2 can't align, not to polish...\n" + TextColor.END)
-            return
+        # if os.stat(paf).st_size == 0:
+        #     sys.stderr.write(TextColor.PURPLE + "Minimap2 can't align, not to polish...\n" + TextColor.END)
+        #     return
 
-        align_end_time = time.time()
-        alignment_time = get_elapsed_time_string(align_start_time, align_end_time)
-        print_stage_time('Minimap2 alignment time', alignment_time)
+        # align_end_time = time.time()
+        # alignment_time = get_elapsed_time_string(align_start_time, align_end_time)
+        # print_stage_time('Minimap2 alignment time', alignment_time)
 
 
         contig_start_time = time.time()
@@ -220,18 +205,16 @@ def polish_genome(mash_screen, assembly, model_path, sketch_path, genus_species,
         homologous_output_dir = make_output_dir("homologous", output_dir_debug)
         
         # Download closely related genome by given genus_species
-        print_system_log('Select closely-related genomes')
-        collect_start_time = time.time()
+        print_system_log('Select closely-related genomes and download')
         print("Genus: "+genus_species)
-        # get closely related
+        collect_start_time = time.time()
         ncbi_id, url_list = download.parser_genus_species(genus_species, download_contig_nums)
+
         # download homologous
-        print_system_log('Download closely-related genomes')
         sys.stderr.write(TextColor.GREEN + " INFO: " + str(len(url_list)) + " homologous sequence need to download: \n" + TextColor.END)
         db_path = download.download(homologous_output_dir, ncbi_id, url_list)
 
         collect_end_time = time.time()
-
         collect_time = get_elapsed_time_string(collect_start_time, collect_end_time)
         print_stage_time('Select closely-related genomes and download', collect_time)
 
@@ -247,7 +230,6 @@ def polish_genome(mash_screen, assembly, model_path, sketch_path, genus_species,
             contig_name = contig_output_dir + '/' + contig.id + '.fasta'
             SeqIO.write(contig, contig_name, "fasta")
 
-            print_system_log('Homologous retrieval')
             paf = alignment.align(contig_name, minimap_args, threads, db_path, contig_output_dir)
 
             if os.stat(paf).st_size != 0:
@@ -281,40 +263,37 @@ def polish_genome(mash_screen, assembly, model_path, sketch_path, genus_species,
             contig_name = contig_output_dir + '/' + contig.id + '.fasta'
             SeqIO.write(contig, contig_name, "fasta")
 
+
             print_system_log('Select closely-related genomes')
-            collect_start_time = time.time()
-
-            if mash_screen:
-                mash_file = mash.screen(contig_name, sketch_path, threads, contig_output_dir, mash_threshold
-                                        , contig.id, download_contig_nums)
-            else:
-                mash_file = mash.dist(contig_name, sketch_path, threads, contig_output_dir, mash_threshold,
-                                      download_contig_nums, contig.id)
-
-            ncbi_id = mash.get_ncbi_id(mash_file, mash_screen)
+            select_start_time = time.time()
+            ncbi_id = mash_select_closely_related(sketch_path, mash_screen, threads, contig_output_dir, mash_threshold,
+                           download_contig_nums, contig_name, contig.id)
+            select_end_time = time.time()
+            select_time = get_elapsed_time_string(select_start_time, select_end_time)
+            print_stage_time('Select closely-related genomes', select_time)
 
             if len(ncbi_id) < 5:  # Would'nt polish if closely-related genomes less than 5
                 sys.stderr.write(TextColor.PURPLE + "This contig " + contig.id + " closely-related genome is less than 5, not to polish...\n" + TextColor.END)
                 out.append(contig_name)
                 continue
-            else:
-                print_system_log('Download closely-related genomes')
-                url_list = download.parser_url(ncbi_id)
-                sys.stderr.write(TextColor.GREEN + " INFO: " + str(len(url_list)) + " homologous sequence need to download: \n" + TextColor.END)
-                db_path = download.download(contig_output_dir, ncbi_id, url_list)
 
-            collect_end_time = time.time()
 
-            collect_time = get_elapsed_time_string(collect_start_time, collect_end_time)
-            print_stage_time('Select closely-related genomes and download', collect_time)
+            print_system_log('Download closely-related genomes')
+            download_start_time = time.time()
+            url_list = download.parser_url(ncbi_id)
+            sys.stderr.write(TextColor.GREEN + " INFO: " + str(len(url_list)) + " homologous sequence need to download: \n" + TextColor.END)
+            db_path = download.download(contig_output_dir, ncbi_id, url_list)
+            download_end_time = time.time()
+            download_time = get_elapsed_time_string(download_start_time, download_end_time)
+            print_stage_time('Download closely-related genomes', download_time)
             
-            print_system_log('Homologous retrieval')
+            
             paf = alignment.align(contig_name, minimap_args, threads, db_path, contig_output_dir)
             
             if os.stat(paf).st_size != 0:
                 record = SeqIO.read(contig_name, "fasta")
                 genome_size = len(record)
-
+                
                 dataframe = homologous_retrieval(paf, genome_size, contig_output_dir, contig.id, contig_name)
 
                 if dataframe==False:
@@ -361,23 +340,34 @@ def make_train_data(mash_screen, assembly, reference, sketch_path, genus_species
 
         print_system_log('Select closely-related genomes and download')
         collect_start_time = time.time()
-        db_path = select_closely_related(sketch_path, genus_species, mash_screen, threads, contig_output_dir, mash_threshold, download_contig_nums, contig_name, contig.id)
+        #db_path = mash_select_closely_related(sketch_path, mash_screen, threads, contig_output_dir, mash_threshold, download_contig_nums, contig_name, contig.id)
+        ncbi_id = mash_select_closely_related(sketch_path, mash_screen, threads, contig_output_dir, mash_threshold, download_contig_nums, contig_name, contig.id)
+        
+        if len(ncbi_id) < 5:
+            sys.stderr.write(TextColor.PURPLE + "This contig " + contig.id + " closely-related genome is less than 5, not to polish...\n" + TextColor.END)
+            out.append(contig_name)
+            continue
+
         collect_end_time = time.time()
         collect_time = get_elapsed_time_string(collect_start_time, collect_end_time)
-        print_stage_time('Select closely-related genomes and download', collect_time)
+        #print_stage_time('Select closely-related genomes and download', collect_time)
 
-        
-        #homologous_start_time = time.time()
+        print_system_log('Download closely-related genomes')
+        url_list = download.parser_url(ncbi_id)
+        sys.stderr.write(TextColor.GREEN + " INFO: " + str(len(url_list)) + " homologous sequence need to download: \n" + TextColor.END)
+        db_path = download.download(contig_output_dir, ncbi_id, url_list)
+
+
         seq_paf = alignment.align(contig_name, minimap_args, threads, db_path, contig_output_dir)
         ref_paf = alignment.align(contig_name, minimap_args, threads, db_path, contig_output_dir, reference)
+
 
         if os.stat(seq_paf).st_size != 0 and os.stat(ref_paf).st_size != 0:
             record = SeqIO.read(contig_name, "fasta")
             genome_size = len(record)
 
-            print_system_log('Homologous retrieval')
             dataframe_path = homologous_retrieval(seq_paf, genome_size, contig_output_dir, contig.id, contig_name, ref_paf)
-
+                                                                                                                                                                                                                                                                                                                                                                                                                        
         else:
             sys.stderr.write(TextColor.PURPLE + contig.id + " minimap2 can't align......\n" + TextColor.END)
 
