@@ -1,3 +1,6 @@
+[![DOI](https://zenodo.org/badge/280070417.svg)](https://zenodo.org/badge/latestdoi/280070417)
+
+
 # Introduction
 Homopolish is a Nanopore-specific polisher able to generate a high-quality genome (>Q40) for virus, bacteria, and fungus. The strength of Homopolish lies in correcting Nanopore systematic errors by training a polishing model using homologous sequences retrieved from closely-related genomes. In conjunction with Racon or Medaka, the genomes can reach Q40-90 (>99.99%) accuracy on R9.4 flowcells (Guppy 3.x) (see
 [Reference](#reference))
