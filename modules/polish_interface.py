@@ -41,8 +41,7 @@ def mash_select_closely_related(sketch_path, mash_screen, threads, output_dir, m
     if mash_screen:
         mash_file = mash.screen(contig_name, sketch_path, threads, output_dir, mash_threshold, contig_id, download_contig_nums)
     else:
-        mash_file = mash.dist(contig_name, sketch_path, threads, output_dir, mash_threshold, download_contig_nums,
-                              contig_id)
+        mash_file = mash.dist(contig_name, sketch_path, threads, output_dir, mash_threshold, download_contig_nums, contig_id)
 
     ncbi_id = mash.get_ncbi_id(mash_file, mash_screen)
 
@@ -260,6 +259,7 @@ def polish_genome(mash_screen, assembly, model_path, sketch_path, genus_species,
             # create a directory for each contig
             contig_output_dir = make_output_dir("contig", output_dir_debug, contig.id)
             # new fasta for each contig
+            print("each contig_output_dir", contig_output_dir)
             contig_name = contig_output_dir + '/' + contig.id + '.fasta'
             SeqIO.write(contig, contig_name, "fasta")
 

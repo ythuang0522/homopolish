@@ -26,15 +26,15 @@ def screen(contig_name, sketch_path, threads, output_dir, mash_threshold, contig
 def dist(contig_name, sketch_path, threads, output_dir, mash_threshold ,download_contig_nums, contig_id):
     ratios=1- float (mash_threshold)
     mash_out = '{}/{}.sort.tab'.format(output_dir, contig_id)
-    mash_cmd = 'mash dist -p {thread} -d {ratio} {db} {draft} > temp.tab'\
-            .format(thread=threads, ratio=str (ratios),db=sketch_path, draft=contig_name)
-    sort_cmd = 'sort -gk3 temp.tab > temp.sort.tab'
-    head_cmd = 'head -n {num} temp.sort.tab > {out}'.format(num=download_contig_nums, out=mash_out)
+    mash_cmd = 'mash dist -p {thread} -d {ratio} {db} {draft} > {output_dir}/temp.tab'\
+            .format(thread=threads, ratio=str (ratios),db=sketch_path, draft=contig_name, output_dir=output_dir)
+    sort_cmd = 'sort -gk3 {output_dir}/temp.tab > {output_dir}/temp.sort.tab'.format(output_dir=output_dir)
+    head_cmd = 'head -n {num} {output_dir}/temp.sort.tab > {out}'.format(num=download_contig_nums, out=mash_out, output_dir=output_dir)
     os.system(mash_cmd)
     os.system(sort_cmd)
     os.system(head_cmd)
-    os.remove('temp.tab')
-    os.remove('temp.sort.tab')
+    os.remove('{output_dir}/temp.tab'.format(output_dir=output_dir))
+    os.remove('{output_dir}/temp.sort.tab'.format(output_dir=output_dir))
     return mash_out
 
     
