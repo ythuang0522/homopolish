@@ -59,6 +59,8 @@ optional arguments:
                         Path to a mash sketch file.
   -g GENUS, --genus GENUS
                         Genus name
+  -l LOCAL_DB_PATH, --local_DB_path LOCAL_DB_PATH
+                        Path to your local DB
   -t THREADS, --threads THREADS
                         Number of threads to use. [1]
   -o OUTPUT_DIR, --output_dir OUTPUT_DIR
