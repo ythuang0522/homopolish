@@ -36,7 +36,10 @@ You also can use ```-g``` to set the given Genus and Species name to polish your
 ```
 python3 homopolish.py polish -a yourgenome.fasta -g genusname_speciesname -m R9.4.pkl -o youroutput
 ```
-
+If you have close relatives of your genome, you can use ```-l```.
+```
+python3 homopolish.py -a yourgenome.fasta -l closely-related_genomes.fasta -m R9.4.pkl -o youroutpur
+```
 # Other Options and usage
 
 Run ```python3 homopolish.py polish --help``` to view all the options:
@@ -60,7 +63,7 @@ optional arguments:
   -g GENUS, --genus GENUS
                         Genus name
   -l LOCAL_DB_PATH, --local_DB_path LOCAL_DB_PATH
-                        Path to your local DB
+                        Path to your local DB (ex: cat closely-related_genomes1.fasta closely-related_genomes2.fasta> DB.fasta)
   -t THREADS, --threads THREADS
                         Number of threads to use. [1]
   -o OUTPUT_DIR, --output_dir OUTPUT_DIR
