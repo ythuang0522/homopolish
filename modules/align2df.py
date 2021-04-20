@@ -41,7 +41,12 @@ def todf(draft, db_np, path, truth_np=None):
                 ins_T.append(ins[i][j][1])
                 ins_C.append(ins[i][j][2])
                 ins_G.append(ins[i][j][3])
-                cov.append(coverage[i])
+                
+                if coverage[i] != 0:
+                    cov.append(coverage[i])
+                else:
+                    cov.append(coverage[i+1])
+                
                 index = np.argmax(ins[i][j])
                 temp = i
                 while i + 1 < genome_size and record[i+1] == nuc_dict.get(index):
@@ -77,6 +82,7 @@ def todf(draft, db_np, path, truth_np=None):
         ins_C.append(0)
         ins_G.append(0)
         cov.append(coverage[i])
+        
 
         index = i
         nuc = record[i]
