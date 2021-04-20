@@ -38,7 +38,7 @@ python3 homopolish.py polish -a yourgenome.fasta -g genusname_speciesname -m R9.
 ```
 If you have close relatives of your genome, you can use ```-l```.
 ```
-python3 homopolish.py -a yourgenome.fasta -l closely-related_genomes.fasta -m R9.4.pkl -o youroutput
+python3 homopolish.py polish -a yourgenome.fasta -l closely-related_genomes.fasta -m R9.4.pkl -o youroutput
 ```
 # Other Options and usage
 
