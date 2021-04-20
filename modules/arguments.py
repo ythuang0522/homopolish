@@ -26,6 +26,13 @@ def add_common_arguments(parser):
         required=False,
         help="Genus name"
     )
+    group.add_argument(
+        "-l",
+        "--local_DB_path",
+        type=str,
+        required=False,
+        help="Path to your local DB"
+    )
     parser.add_argument(
         "-t",
         "--threads",
