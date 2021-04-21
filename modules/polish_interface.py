@@ -323,7 +323,7 @@ def polish_genome(mash_screen, assembly, model_path, sketch_path, genus_species,
 
     if debug:
         try:
-            shutil.rmtree(contig_output_dir_debug)
+            shutil.rmtree(output_dir_debug)
         except OSError as e:
             print(e)
         else:
@@ -381,3 +381,10 @@ def make_train_data(mash_screen, assembly, reference, sketch_path, genus_species
             sys.stderr.write(TextColor.PURPLE + contig.id + " minimap2 can't align......\n" + TextColor.END)
 
         shutil.move(dataframe_path, output_dir+'/'+assembly_name+'.feather')
+    if debug:
+        try:
+            shutil.rmtree(contig_output_dir_debug)
+        except OSError as e:
+            print(e)
+        else:
+            return True
