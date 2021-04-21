@@ -9,6 +9,7 @@ from modules.utils.FileManager import FileManager
 from subprocess import call
 import shutil
 import time
+from modules.utils.TextColor import TextColor
 from contextlib import closing
 
 def checkInternetRequests(url, timeout=3):
