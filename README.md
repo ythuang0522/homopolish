@@ -2,8 +2,7 @@
 
 
 # Introduction
-Homopolish is a Nanopore-specific polisher able to generate a high-quality genome (>Q40) for virus, bacteria, and fungus. The strength of Homopolish lies in correcting Nanopore systematic errors by training a polishing model using homologous sequences retrieved from closely-related genomes. In conjunction with Racon or Medaka, the genomes can reach Q40-90 (>99.99%) accuracy on R9.4 flowcells (Guppy 3.x) (see
-[Reference](#reference))
+Homopolish is a Nanopore-specific polisher able to generate a high-quality genome for virus, bacteria, and fungus. Nanopore systematic errors are  corrected by retrieving homologs from closely-related genomes and a trained ML model. In conjunction with Racon or Medaka, the genomes can reach Q40-90 (>99.99%) accuracy on R9.4 flowcells (Guppy 3.x) (see [Reference](#reference))
 
 # Installation
 Homopolish is recommendated to install and run within a conda environment
@@ -28,17 +27,17 @@ gunzip bacteria.msh.gz
     
 # Quick usage
 
-Homopolish should be run with a pre-trained model (R9.4.pkl or R10.3.pkl) and one sketch (virus, bacteria, or fungi). We note that Homopolish should be run after Racon or Medaka as it focuses on removing systematic indel errors only. For instance, if your Medaka-polished genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
+Homopolish should be run with a pre-trained model (R9.4.pkl or R10.3.pkl) and one sketch (virus, bacteria, or fungi). Note that Homopolish should be run after Racon or Medaka as it focuses on removing systematic indel errors only. For instance, if your Medaka-polished genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
 ```
 python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
 ```
-You also can use ```-g``` to set the given Genus and Species name to polish your genome.
+You also can set ```-g``` to specify particular genus and species names in [NCBI](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt) without mash searching.
 ```
 python3 homopolish.py polish -a yourgenome.fasta -g genusname_speciesname -m R9.4.pkl -o youroutput
 ```
-If you have close relatives of your genome, you can use ```-l```.
+If you wanna use your own local genomes instead of NCBI, specify the path to your local database via ```-l```.
 ```
-python3 homopolish.py polish -a yourgenome.fasta -l closely-related_genomes.fasta -m R9.4.pkl -o youroutput
+python3 homopolish.py polish -a yourgenome.fasta -l path_to_your_genomes.fasta -m R9.4.pkl -o youroutput
 ```
 # Other Options and usage
 
@@ -113,11 +112,13 @@ If you use the parameter ```-d```, directory content in a tree-like format is be
 
 # Reference
 
-Comparison of genome accuracy polished by Racon, Medaka, MarginPolish, HELEN, and Homopolish on R9.4 and on R10.3 Zymo Microbial Community Standard. The R9.4/R10.3 genomes polished by Medaka+Homopolish can be found in the [data](https://github.com/ythuang0522/homopolish/tree/master/data) folder. i.e., R9.4_medaka+homopolish.tar.gz/R10.3_medaka+homopolish.tar.gz vs referehence (truth.tar.gz) with median Q scores computed by [fastmer](https://github.com/jts/assembly_accuracy/blob/master/fastmer.py). 
+Comparison of genome accuracy polished by Racon, Medaka, MarginPolish, HELEN, and Homopolish on R9.4 and on R10.3 Zymo Microbial Community Standard. See also the [data](https://github.com/ythuang0522/homopolish/tree/master/data) folder. Median Q scores computed by [fastmer](https://github.com/jts/assembly_accuracy/blob/master/fastmer.py). 
 ![Accuracy of Homopolish](https://www.biorxiv.org/content/biorxiv/early/2020/09/20/2020.09.19.304949/F1.large.jpg)
 ![Accuracy of Homopolish](https://www.biorxiv.org/content/biorxiv/early/2020/09/20/2020.09.19.304949/F2.large.jpg)
 
-Huang et al. High-Quality Genomes of Nanopore Sequencing by Homologous Polishing, doi: https://doi.org/10.1101/2020.09.19.304949
+If you use homopolish, please cite
+
+Huang, Y.-T., Liu, P.-Y., and Shih, P.-W. [Homopolish: a method for the revmoal of systematic errors in nanopore sequencing by homologous polishing](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02282-6), Genome Biology, 2021.
 
 
 
