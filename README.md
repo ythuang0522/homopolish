@@ -1,5 +1,5 @@
 [![DOI](https://zenodo.org/badge/280070417.svg)](https://zenodo.org/badge/latestdoi/280070417)
-[![DOI](https://img.shields.io/badge/homopolish-0.0.2-green)](https://anaconda.org/bioconda/homopolish)
+[![DOI](https://img.shields.io/badge/Download-Bioconda-green)](https://anaconda.org/bioconda/homopolish)
 
 
 # Introduction
