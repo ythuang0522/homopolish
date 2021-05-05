@@ -17,4 +17,5 @@ dependencies:
   - joblib=0.15.1
   - requests=2.24.0
   - more-itertools=8.4.0
+  - pyarrow=0.17.1
   - pycurl
