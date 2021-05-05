@@ -13,6 +13,10 @@ Homopolish is recommendated to install and run within a conda environment
 	conda env create -f environment.yml
 	conda activate homopolish
 
+Homopolish can be also installed from bioconda. An executable file, homopolish, should be available in the virtual env. 
+
+	conda create -n homopolish -c conda-forge -c bioconda homopolish
+
 # Download virus, bacteria, or fungi sketches
 Homopolish retrieves homologous sequences by scanning microbial genomes compressed in (Mash) sketches. Three sketches of virus (74Mb), bacteria (719Mb), and fungi (74Mb) can be downloaded from the following addresses using wget or curl.
 
@@ -32,14 +36,22 @@ Homopolish should be run with a pre-trained model (R9.4.pkl or R10.3.pkl) and on
 ```
 python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
 ```
+
+Note that if installed from bioconda, you should directly invoke the executable file.
+```
+homopolish polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
+```
+
 You also can set ```-g``` to specify particular genus and species names in [NCBI](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt) without mash searching.
 ```
 python3 homopolish.py polish -a yourgenome.fasta -g genusname_speciesname -m R9.4.pkl -o youroutput
 ```
+
 If you wanna use your own local genomes instead of NCBI, specify the path to your local database via ```-l```.
 ```
 python3 homopolish.py polish -a yourgenome.fasta -l path_to_your_genomes.fasta -m R9.4.pkl -o youroutput
 ```
+
 # Other Options and usage
 
 Run ```python3 homopolish.py polish --help``` to view all the options:
