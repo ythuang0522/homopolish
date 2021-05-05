@@ -106,7 +106,8 @@ def homopolish(contig_name, minimap_args, threads, db_path, model_path, contig_o
 def write_for_new_fasta(contig, output_dir_debug):
     timestr = time.strftime("[%Y/%m/%d %H:%M]")
     sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO: RUN-ID: " + contig.id + "\n" + TextColor.END)
-
+    print(contig.id)
+    print(output_dir_debug)
     # create a directory for each contig
     contig_output_dir = make_output_dir("contig", output_dir_debug, contig.id)
     # new fasta for each contig
@@ -190,7 +191,9 @@ def meta_polish(out, assembly_name, output_dir_debug, mash_screen, assembly, mod
 
     # Each contig polish
     for contig in SeqIO.parse(assembly, 'fasta'):
-
+        if '/' in contig.id:
+            contig.id = contig.id.replace('/', '_')
+        
         contig_name, contig_output_dir = write_for_new_fasta(contig, output_dir_debug)
 
         paf_name = contig_output_dir + '/' + contig.id + '.paf'
@@ -223,7 +226,9 @@ def genus_species_polish(out, assembly_name, output_dir_debug, mash_screen, asse
 
     # Each contig alignment and polish
     for contig in SeqIO.parse(assembly, 'fasta'):
-        
+        if '/' in contig.id:
+            contig.id = contig.id.replace('/', '_')
+            
         contig_name, contig_output_dir = write_for_new_fasta(contig, output_dir_debug)
         
         # alignment
@@ -240,7 +245,9 @@ def without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, m
 
     # Each contig to mash and alignment and polish
     for contig in SeqIO.parse(assembly, 'fasta'):
-        
+        if '/' in contig.id:
+            contig.id = contig.id.replace('/', '_')
+            
         contig_name, contig_output_dir = write_for_new_fasta(contig, output_dir_debug)
 
         print_system_log('Select closely-related genomes')
@@ -273,6 +280,9 @@ def local_DB(out, assembly_name, output_dir_debug, mash_screen, assembly, model_
 
     # Each contig to alignment and polish
     for contig in SeqIO.parse(assembly, 'fasta'):
+        if '/' in contig.id:
+            contig.id = contig.id.replace('/', '_')
+            
 
         contig_name, contig_output_dir = write_for_new_fasta(contig, output_dir_debug)
 
@@ -381,10 +391,3 @@ def make_train_data(mash_screen, assembly, reference, sketch_path, genus_species
             sys.stderr.write(TextColor.PURPLE + contig.id + " minimap2 can't align......\n" + TextColor.END)
 
         shutil.move(dataframe_path, output_dir+'/'+assembly_name+'.feather')
-    if debug:
-        try:
-            shutil.rmtree(contig_output_dir_debug)
-        except OSError as e:
-            print(e)
-        else:
-            return True
