@@ -14,7 +14,6 @@ from contextlib import closing
 
 def checkInternetRequests(url, timeout=3):
     try:
-        #r = requests.head(url, timeout=timeout)
         req = urllib.request.Request(url)
         response = urllib.request.urlopen(req)
         return True
@@ -22,10 +21,24 @@ def checkInternetRequests(url, timeout=3):
         print(ex)
         return False
 
+def download_NCBI(filename,url,):
+    with open(filename, 'wb') as f:
+                curl = pycurl.Curl()
+                curl.setopt(pycurl.URL, url)
+                curl.setopt(pycurl.WRITEDATA, f)
+                curl.perform()
+                curl.close()
+                
+    with open(os.devnull, 'w') as gzip:
+            result = call(['gzip', '-t', filename], stdout=gzip, stderr=gzip)
+            if result != 0: 
+                #print("file is corrupted")
+                raise OSError
+
 def run_process(id, url, path):
     path = path + '/'
+    filename = '{}{}.fna.gz'.format(path, id)
     if 'ftp' in url:
-        filename = '{}{}.fna.gz'.format(path, id)
         try:
             
             ok = checkInternetRequests(url,3)
@@ -46,19 +59,7 @@ def run_process(id, url, path):
                     curl.close()
                     #shutil.copyfileobj(r, f)
             '''
-            
-            with open(filename, 'wb') as f:
-                curl = pycurl.Curl()
-                curl.setopt(pycurl.URL, url)
-                curl.setopt(pycurl.WRITEDATA, f)
-                curl.perform()
-                curl.close()
-                
-            with open(os.devnull, 'w') as gzip:
-                result = call(['gzip', '-t', filename], stdout=gzip, stderr=gzip)
-                if result != 0: 
-                    #print("file is corrupted")
-                    raise OSError
+            download_NCBI(filename,url)
             
         except pycurl.error as e :
             time.sleep(3)
@@ -76,19 +77,16 @@ def run_process(id, url, path):
         
     else:
         try:
-            
+            '''
             r = requests.get(url, allow_redirects=True, verify = False)
             r.raise_for_status()
+            '''
             
-            '''
-            print(url)
-            with open(filename, 'wb') as f:
-                curl = pycurl.Curl()
-                curl.setopt(pycurl.URL, url)
-                curl.setopt(pycurl.WRITEDATA, f)
-                curl.perform()
-                curl.close()
-            '''
+            print("Downloaded " + id)
+           
+            download_NCBI(filename,url)
+
+            
         except requests.exceptions.RequestException as e:
             print(e)
             #sys.exit(0)
@@ -110,7 +108,6 @@ def parser_url(ncbi_id):
             url = "ftp://ftp.ncbi.nlm.nih.gov/genomes/all/{gcf}/{letter}/{id}/{filename}".format(gcf=gcf, letter=letter, id=id, filename=filename) 
             url_list.append(url)
         else: #download plasmid 
-        
             url = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id={id}&rettype=fasta'.format(id=filename)
             url_list.append(url)
     return url_list
