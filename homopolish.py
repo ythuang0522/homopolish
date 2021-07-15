@@ -42,7 +42,7 @@ def main():
                 FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums, FLAGS.debug, FLAGS.meta, FLAGS.local_DB_path)
 
     elif FLAGS.sub_command == 'train':
-        train_model(FLAGS.dataframe_dir, FLAGS.output_dir, FLAGS.output_prefix, FLAGS.threads)
+        train_model(FLAGS.dataframe_dir, FLAGS.output_dir, FLAGS.output_prefix, FLAGS.threads,FLAGS.pacbio)
 
     elif FLAGS.sub_command == 'make_train_data':
         make_train_data(FLAGS.mash_screen, FLAGS.assembly, FLAGS.reference, FLAGS.sketch_path, FLAGS.genus, FLAGS.threads, \

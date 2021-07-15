@@ -11,7 +11,7 @@ import shutil
 import time
 from modules.utils.TextColor import TextColor
 from contextlib import closing
-
+from modules import ani
 def checkInternetRequests(url, timeout=3):
     try:
         req = urllib.request.Request(url)
@@ -69,22 +69,18 @@ def run_process(id, url, path):
             print(e)
             run_process(id,url,path)
         
-        except OSError as e:
-            print("{} is corrupted".format(filename))
-            #sys.exit(0)
-            run_process(id,url,path)
-            #sys.exit(0)
+        
         
     else:
         try:
-            '''
-            r = requests.get(url, allow_redirects=True, verify = False)
+            
+            r = requests.get(url, allow_redirects=True, verify = True)
             r.raise_for_status()
-            '''
+            
             
             print("Downloaded " + id)
            
-            download_NCBI(filename,url)
+            #download_NCBI(filename,url)  #Use pycurl download plasmid is not so good
 
             
         except requests.exceptions.RequestException as e:
@@ -94,6 +90,11 @@ def run_process(id, url, path):
             time.sleep(3)
             run_process(id,url,path)
             print(e)
+        except OSError as e:
+            print("{} is corrupted".format(filename))
+            #sys.exit(0)
+            run_process(id,url,path)
+            #sys.exit(0)
         open('{}{}.fasta'.format(path, id), 'wb').write(r.content)
  
 def parser_url(ncbi_id):
@@ -180,22 +181,23 @@ def parser_genus_species(genus_species, download_contig_nums=None):
                     allData.append(element[7])
                 else:
                     break
-
+    '''
     if len(ncbi_id) < 5:  # Would'nt polish if closely-related genomes less than 5
         sys.stderr.write(TextColor.PURPLE + "Closely-related genomes less than 5, not to polish...\n" + TextColor.END)
         return
-
+    '''
     return ncbi_id, url_list 
 
-def download(path, ncbi_id, url_list): 
-
-    db_dir = path + '/homologous_sequences/'
+def download(path, ncbi_id, url_list,contig_name): 
     
+    db_dir = path + '/homologous_sequences/'
     db_dir = FileManager.handle_output_directory(db_dir)
     max_pool_size = 3 #API rate limit exceeded, can't go higher
     cpus = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(cpus if cpus < max_pool_size else max_pool_size)
+    All_db=[]
     for id, url in zip(ncbi_id, url_list):
+        All_db = ani.putInList(db_dir,url,id,All_db)
         try:
             pool.apply_async(run_process, args=(id, url, db_dir))
         except multiprocessing.BufferTooShort as e:
@@ -208,6 +210,11 @@ def download(path, ncbi_id, url_list):
             print(e)
     pool.close()
     pool.join()
+    
+    db_txt=ani.writeDbInTxt(All_db,path)
+    out=ani.computeAni(contig_name,db_txt,path)
+    ani.parseAni(out)
+    
 
     file_path = db_dir + '/*'
     db_path = path + '/All_homologous_sequences.fna.gz'

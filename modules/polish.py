@@ -13,12 +13,12 @@ def stitch(draft, result, path):
     df = feather.read_dataframe(result)
     record = next(SeqIO.parse(draft, "fasta"))
 
-    deletion = df[df['predict'] == 4].position.values #deletion 的df
-    insertion = df[df['predict'] < 4] #只剩insertion
+    deletion = df[df['predict'] == 4].position.values #deletion ?�df
+    insertion = df[df['predict'] < 4] #?�剩insertion
     
     d_temp = [list(group) for group in mit.consecutive_groups(deletion)]  
     for key in d_temp:
-        if len(key) <= 6:
+        if len(key) <= 7: #number could increase if model is work well
             d_position = np.concatenate((d_position, key), axis=0)
 
     i_position = df[df['predict'] < 4].position.values 

@@ -24,7 +24,40 @@ def preprocessing(df):
     scaler = MinMaxScaler()
     df['coverage'] = scaler.fit_transform(df[['coverage']])
     return df
+    
+def haplotype(df):
+    haplotype = np.zeros((df.shape[0],), dtype=int)
+    ins_pos = df[df.draft == "-"].position.values
+   
+    side = 10
+    dis = np.diff(ins_pos)
+    idxs = np.where((dis < 10) & (dis > 1))[0]
+    
 
+    for i in idxs:        
+        head = df[df['position'] == ins_pos[i]]
+        head_total = head[['Ins_A','Ins_T','Ins_C','Ins_G']].sum(axis=1).values[0]
+        tail = df[df['position'] == ins_pos[i+1]]
+        tail_total = tail[['Ins_A','Ins_T','Ins_C','Ins_G']].sum(axis=1).values[0]
+        
+        head_idx=head.index.values[0]
+        tail_idx=tail.index.values[0]
+        
+        coverage = head.coverage.values[0]
+        if (head_total + tail_total) == coverage:   
+            if head_total > tail_total:
+                haplotype[head_idx] = 1
+                haplotype[tail_idx] = 2
+            elif head_total < tail_total:
+                haplotype[head_idx] = 2
+                haplotype[tail_idx] = 1
+            else:
+                haplotype[head_idx] = 1
+                haplotype[tail_idx] = 1
+    df['haplotype'] = haplotype
+    #print(df['haplotype'])
+    return df
+'''
 def haplotype(df):
     haplotype = np.zeros((df.shape[0],), dtype=int)
     ins_index = df[df.draft == '-'].index.values
@@ -51,3 +84,4 @@ def haplotype(df):
                 haplotype[ins_index[i+1]] = 1
     df['haplotype'] = haplotype
     return df
+'''

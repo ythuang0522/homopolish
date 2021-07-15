@@ -26,7 +26,7 @@ def read_feather(filename):
     'converts a filename to a pandas dataframe'
     return feather.read_dataframe(filename)
 
-def train_model(train_dir, output_dir, output_prefix, threads):
+def train_model(train_dir, output_dir, output_prefix, threads, pacbio):
 
     output_dir = FileManager.handle_output_directory(output_dir)
     train_file = get_file_paths_from_directory(train_dir)
@@ -36,13 +36,24 @@ def train_model(train_dir, output_dir, output_prefix, threads):
         train = pd.concat(df_list, ignore_index=True)
     train = p.haplotype(train)
 
-    train = p.haplotype(train)
-    temp = train[train['label'] != 5]
+    temp = train[(train['label'] != 5) & (train['label'] != 6) ]
     
     #drop duplicate for label "no correction"
     dup = train[train['label'] == 5].drop_duplicates(subset=train.columns.difference(['position']))
-    uni = train[train['label'] == 5].drop_duplicates(subset=train.columns.difference(['position']), keep=False)
-    train = pd.concat((temp, dup, uni)).reset_index(drop=True)
+    uni = train[train['label'] == 6].drop_duplicates(subset=train.columns.difference(['position']))
+    
+    #According to train data whether upsample or not
+    if pacbio == True :
+        t1 = train[(train['coverage'] == train['Ins_A'])  ]
+        t2 = train[(train['coverage'] == train['Ins_T'])  ]
+
+        t1 = t1.sample(frac=5,replace = True ,random_state =1)
+        t2 = t2.sample(frac=10,replace = True ,random_state =1)
+        
+        train = pd.concat((temp,t1,t2,dup,uni)).reset_index(drop=True) 
+    else:
+        train = pd.concat((temp, dup, uni)).reset_index(drop=True)
+    
     Y_train = train['label'].values
 
     print('Label frequency: \n', train.label.value_counts())
@@ -50,6 +61,14 @@ def train_model(train_dir, output_dir, output_prefix, threads):
 
     X_train = p.preprocessing(train)
     print(X_train)
+    
+    #Clear some Noise
+    X_train = X_train.drop(X_train[(X_train['label'] ==6)&(X_train['Ins_G'] ==1)].index)
+    X_train = X_train.drop(X_train[(X_train['label'] ==6)&(X_train['Ins_A'] ==1)].index)
+    X_train = X_train.drop(X_train[(X_train['label'] ==6)&(X_train['Ins_T'] ==1)].index)
+    X_train = X_train.drop(X_train[(X_train['label'] ==6)&(X_train['Ins_C'] ==1)].index)
+    
+    
     X_train = pd.DataFrame(X_train.drop(['label'], axis=1))
     X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size = 0.1, random_state=1)
     print('After Train/Test split shape: ', X_train.shape)

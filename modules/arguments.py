@@ -143,6 +143,13 @@ def add_train_arguments(parser):
         default=1,
         help="Number of threads to use. [1]"
     )
+    parser.add_argument(
+        "--pacbio",
+        required=False,
+        action='store_true',
+        default=False,
+        help="Your train data is Pacbio. [no]"
+    )
     return parser
 
 def add_train_data_arguments(parser):

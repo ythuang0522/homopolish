@@ -3,7 +3,6 @@ channels:
   - anaconda
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - python=3.7.7
   - mash=2.1.1
@@ -17,5 +16,6 @@ dependencies:
   - joblib=0.15.1
   - requests=2.24.0
   - more-itertools=8.4.0
-  - pyarrow=0.17.1
+  - pyarrow=0.15.1
   - pycurl
+  - fastani=1.32

@@ -62,9 +62,9 @@ def pileup(paf, genome_size):
                     
                     elif flag == 1:
                         longdel_count = 0
-                        arr[start_pos][base] += 1 #ex. 100bp 為A arr1[100][0] = 1
+                        arr[start_pos][base] += 1 #ex. 100bp ?�A arr1[100][0] = 1
                         coverage[start_pos] += 1
-                        start_pos += 1 #換下一bp
+                        start_pos += 1 #?��?一bp
                     elif flag == 2: 
                         # *gc
                         # -01
@@ -73,8 +73,7 @@ def pileup(paf, genome_size):
                         if mismatch != 1:
                             mismatch += 1
                         else:
-                            arr[start_pos][base] += 1 #不對mismatch紀錄
-                            coverage[start_pos] += 1 
+                            arr[start_pos][base] += 1 #不�?mismatch紀??                            coverage[start_pos] += 1 
                             start_pos += 1
                         
                     elif flag == 3: 
@@ -124,6 +123,10 @@ def align(draft, minimap_args, threads, db, path, reference=None):
     if reference:
         paf = '{}/truth.paf'.format(path)
         minimap2_cmd= 'minimap2 -cx asm5 --cs=long -t {thread} {draft} {reference} > {paf}'.format(thread=threads, draft=draft, reference=reference,paf=paf)
+        
+        out = path + '/truth_ANI.txt'
+        Ani_cmd = 'fastANI -q {draft} -r {reference} -o {out}'.format(draft=draft,reference=reference,out=out)
+        os.system(Ani_cmd)
     else:
         paf = '{}/contig.paf'.format(path)
         minimap2_cmd = 'minimap2 -cx {asm} --cs=long -t {thread} {draft} {db} > {paf}'\

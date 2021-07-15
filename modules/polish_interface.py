@@ -136,12 +136,12 @@ def check_homopolish(paf, contig_name, contig_output_dir, contig, minimap_args, 
     
 
 
-def download_action(ncbi_id, homologous_output_dir):
+def download_action(ncbi_id, homologous_output_dir,contig_name =None ):
     download_start_time = time.time()
     print_system_log('Download closely-related genomes')
     url_list = download.parser_url(ncbi_id)
     sys.stderr.write(TextColor.GREEN + " INFO: " + str(len(url_list)) + " homologous sequence need to download: \n" + TextColor.END)
-    db_path = download.download(homologous_output_dir, ncbi_id, url_list)       
+    db_path = download.download(homologous_output_dir, ncbi_id, url_list,contig_name)       
     download_end_time = time.time()
     download_time = get_elapsed_time_string(download_start_time, download_end_time)
     print_stage_time('Download closely-related genomes time', download_time)
@@ -257,14 +257,14 @@ def without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, m
         select_end_time = time.time()
         select_time = get_elapsed_time_string(select_start_time, select_end_time)
         print_stage_time('Select closely-related genomes', select_time)
-
+        '''
         if len(ncbi_id) < 5:  # Would'nt polish if closely-related genomes less than 5
             sys.stderr.write(TextColor.PURPLE + "This contig " + contig.id + " closely-related genome is less than 5, not to polish...\n" + TextColor.END)
             out.append(contig_name)
             continue
-
+        '''
         # download homologous
-        download_path = download_action(ncbi_id, contig_output_dir)
+        download_path = download_action(ncbi_id, contig_output_dir,contig_name)
         
         # alignment
         paf = alignment.align(contig_name, minimap_args, threads, download_path, contig_output_dir)
@@ -361,11 +361,12 @@ def make_train_data(mash_screen, assembly, reference, sketch_path, genus_species
         collect_start_time = time.time()
         #db_path = mash_select_closely_related(sketch_path, mash_screen, threads, contig_output_dir, mash_threshold, download_contig_nums, contig_name, contig.id)
         ncbi_id = mash_select_closely_related(sketch_path, mash_screen, threads, contig_output_dir, mash_threshold, download_contig_nums, contig_name, contig.id)
-        
+        '''
         if len(ncbi_id) < 5:
             sys.stderr.write(TextColor.PURPLE + "This contig " + contig.id + " closely-related genome is less than 5, not to polish...\n" + TextColor.END)
             out.append(contig_name)
             continue
+        '''
 
         collect_end_time = time.time()
         collect_time = get_elapsed_time_string(collect_start_time, collect_end_time)
