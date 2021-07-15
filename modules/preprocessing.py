@@ -55,33 +55,5 @@ def haplotype(df):
                 haplotype[head_idx] = 1
                 haplotype[tail_idx] = 1
     df['haplotype'] = haplotype
-    #print(df['haplotype'])
+   
     return df
-'''
-def haplotype(df):
-    haplotype = np.zeros((df.shape[0],), dtype=int)
-    ins_index = df[df.draft == '-'].index.values
-    side = 10
-    dis = np.diff(ins_index)
-    idxs = np.where((dis < 10) & (dis > 1))[0]
-    
-
-    for i in idxs:        
-        head = df[df.index == ins_index[i]]
-        head_total = head[['Ins_A','Ins_T','Ins_C','Ins_G']].sum(axis=1).values[0]
-        tail = df[df.index == ins_index[i+1]]
-        tail_total = tail[['Ins_A','Ins_T','Ins_C','Ins_G']].sum(axis=1).values[0]
-        coverage = head.coverage.values[0]
-        if (head_total + tail_total) == coverage:   
-            if head_total > tail_total:
-                haplotype[ins_index[i]] = 1
-                haplotype[ins_index[i+1]] = 2
-            elif head_total < tail_total:
-                haplotype[ins_index[i]] = 2
-                haplotype[ins_index[i+1]] = 1
-            else:
-                haplotype[ins_index[i]] = 1
-                haplotype[ins_index[i+1]] = 1
-    df['haplotype'] = haplotype
-    return df
-'''
