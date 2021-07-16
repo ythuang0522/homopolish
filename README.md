@@ -3,7 +3,7 @@
 
 
 # Introduction
-Homopolish is a genome polisher for Nanopore and PacBio CLR, which is able to generate a high-quality genome for virus, bacteria, and fungus. Nanopore systematic errors are corrected by retrieving homologs from closely-related genomes and a trained ML model. In conjunction with Racon or Medaka, the genomes can reach Q450-90 (>99.99%) accuracy on R9.4 flowcells (Guppy >3.x). For PacBio CLR, Homopolish can improve Flye-polished genomes to Q50-90 (see [Reference](#reference)).
+Homopolish is a genome polisher originally developed for Nanopore and subsequently extended for PacBio CLR. It generates a high-quality genome (>Q50) for virus, bacteria, and fungus. Nanopore/PacBio systematic errors are corrected by retreiving homologs from closely-related genomes and polished by an SVM. When paired with Racon and Medaka, the genomes can reach Q50-90 (>99.999%) accuracy on Nanopore R9.4/10.3 flowcells (Guppy >3.x). For PacBio CLR, Homopolish also improves the majority of Flye-assembled genomes to Q90 (see [Reference](#reference)).
 
 # Installation
 Homopolish is recommendated to install and run within a conda environment
@@ -32,7 +32,7 @@ gunzip bacteria.msh.gz
     
 # Quick usage
 
-Homopolish should be run with a pre-trained model (R9.4.pkl/R10.3.pkl for Nanopore and pb.pkl for PacBio CLR) and one sketch (virus, bacteria, or fungi). In Nanopore sequencing, Homopolish should be run after Racon or Medaka as it focuses on removing indel errors only. For PacBio CLR sequencing, it can be run directly after Flye assembly pipline. For instance, if your Medaka-polished genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
+Homopolish should be run with a pre-trained model (R9.4.pkl/R10.3.pkl for Nanopore and pb.pkl for PacBio CLR) and one sketch (virus, bacteria, or fungi). For Nanopore sequencing, Homopolish should be run after the Racon-Medaka pipeline as it only removes indel errors. For PacBio CLR sequencing, it can be run directly after Flye-assembly pipline. For instance, if your Medaka-polished genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
 ```
 python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
 ```
@@ -125,10 +125,18 @@ If you use the parameter ```-d```, directory content in a tree-like format is be
 
 # Reference
 
-Comparison of genome accuracy polished by Racon, Medaka, MarginPolish, HELEN, and Homopolish on R9.4 and on R10.3 Zymo Microbial Community Standard. See also the [data](https://github.com/ythuang0522/homopolish/tree/master/data) folder. Median Q scores computed by [fastmer](https://github.com/jts/assembly_accuracy/blob/master/fastmer.py). 
+Comparison of genome accuracy polished by Racon, Medaka, MarginPolish, HELEN, and Homopolish on Nanopore R9.4. Median Q scores were computed by [fastmer](https://github.com/jts/assembly_accuracy/blob/master/fastmer.py). We note that these are based on early ONT basecaller (Guppy 3.2). After Guppy 3.4, we have seen significant improvement and consistent >Q50 genomes.
 ![Accuracy of Homopolish](https://www.biorxiv.org/content/biorxiv/early/2020/09/20/2020.09.19.304949/F1.large.jpg)
 ![Accuracy of Homopolish](https://www.biorxiv.org/content/biorxiv/early/2020/09/20/2020.09.19.304949/F2.large.jpg)
 
+Since v0.3, we found [FastANI](https://github.com/ParBLiSS/FastANI) is more accurate than [mash](https://github.com/marbl/Mash) for distinguishing highly-similar genomes. The new FastANI version further boosted the accuracy of R9.4 and R10.3 (though still based on Guppy 3.2).
+![R9.4 of Homopolish](https://github.com/ythuang0522/homopolish/blob/master/images/R9.4.png)
+![R10.3 of Homopolish](https://github.com/ythuang0522/homopolish/blob/master/images/R10.3.png)
+
+With the addition of FastANI for distinguishing highly-similar genomes, PacBio CLR assembled by Flye can now be also siginificantly improved by Homopolish.
+![PacBioCLR of Homopolish](https://github.com/ythuang0522/homopolish/blob/master/images/PacBio%20CLR.jpg)
+
+# Citation
 If you use homopolish, please cite
 
 Huang, Y.-T., Liu, P.-Y., and Shih, P.-W. [Homopolish: a method for the revmoal of systematic errors in nanopore sequencing by homologous polishing](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02282-6), Genome Biology, 2021.
