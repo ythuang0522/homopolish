@@ -3,7 +3,7 @@
 
 
 # Introduction
-Homopolish is a Nanopore-specific polisher able to generate a high-quality genome for virus, bacteria, and fungus. Nanopore systematic errors are  corrected by retrieving homologs from closely-related genomes and a trained ML model. In conjunction with Racon or Medaka, the genomes can reach Q40-90 (>99.99%) accuracy on R9.4 flowcells (Guppy 3.x) (see [Reference](#reference))
+Homopolish is a genome polisher for Nanopore and PacBio CLR, which is able to generate a high-quality genome for virus, bacteria, and fungus. Nanopore systematic errors are corrected by retrieving homologs from closely-related genomes and a trained ML model. In conjunction with Racon or Medaka, the genomes can reach Q450-90 (>99.99%) accuracy on R9.4 flowcells (Guppy >3.x). For PacBio CLR, Homopolish can improve Flye-polished genomes to Q50-90 (see [Reference](#reference)).
 
 # Installation
 Homopolish is recommendated to install and run within a conda environment
@@ -32,7 +32,7 @@ gunzip bacteria.msh.gz
     
 # Quick usage
 
-Homopolish should be run with a pre-trained model (R9.4.pkl or R10.3.pkl) and one sketch (virus, bacteria, or fungi). Note that Homopolish should be run after Racon or Medaka as it focuses on removing systematic indel errors only. For instance, if your Medaka-polished genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
+Homopolish should be run with a pre-trained model (R9.4.pkl/R10.3.pkl for Nanopore and pb.pkl for PacBio CLR) and one sketch (virus, bacteria, or fungi). In Nanopore sequencing, Homopolish should be run after Racon or Medaka as it focuses on removing indel errors only. For PacBio CLR sequencing, it can be run directly after Flye assembly pipline. For instance, if your Medaka-polished genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
 ```
 python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
 ```
@@ -132,7 +132,4 @@ Comparison of genome accuracy polished by Racon, Medaka, MarginPolish, HELEN, an
 If you use homopolish, please cite
 
 Huang, Y.-T., Liu, P.-Y., and Shih, P.-W. [Homopolish: a method for the revmoal of systematic errors in nanopore sequencing by homologous polishing](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-021-02282-6), Genome Biology, 2021.
-
-
-
 
