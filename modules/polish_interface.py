@@ -222,7 +222,7 @@ def genus_species_polish(out, assembly_name, output_dir_debug, mash_screen, asse
     ncbi_id, url_list = download.parser_genus_species(genus_species, download_contig_nums)
 
     # download homologous
-    download_path = download_action(ncbi_id, homologous_output_dir)
+    download_path = download_action(ncbi_id, homologous_output_dir,assembly)
 
     # Each contig alignment and polish
     for contig in SeqIO.parse(assembly, 'fasta'):
