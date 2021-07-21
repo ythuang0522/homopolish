@@ -12,6 +12,13 @@ import time
 from modules.utils.TextColor import TextColor
 from contextlib import closing
 from modules import ani
+from datetime import datetime
+
+def randTime():
+    random.seed(datetime.now())
+    sleep_time = random.randint(1, 3)
+    return sleep_time
+
 def checkInternetRequests(url, timeout=3):
     try:
         req = urllib.request.Request(url)
@@ -62,7 +69,8 @@ def run_process(id, url, path):
             download_NCBI(filename,url)
             
         except pycurl.error as e :
-            time.sleep(3)
+            sleep_time = randTime()
+            time.sleep(sleep_time)
             run_process(id,url,path)
             print(e)
         except urllib.error.ContentTooShortError as e:
@@ -87,7 +95,8 @@ def run_process(id, url, path):
             print(e)
             #sys.exit(0)
         except pycurl.error as e :
-            time.sleep(3)
+            sleep_time = randTime()
+            time.sleep(sleep_time)
             run_process(id,url,path)
             print(e)
         except OSError as e:
@@ -212,8 +221,13 @@ def download(path, ncbi_id, url_list,contig_name):
     pool.join()
     
     db_txt=ani.writeDbInTxt(All_db,path)
-    out=ani.computeAni(contig_name,db_txt,path)
-    ani.parseAni(out)
+    
+    if contig_name != None : # meta don't use ani until version upgrade 
+        out=ani.computeAni(contig_name,db_txt,path)
+        if out == None :
+            sys.stderr.write(TextColor.PURPLE + "Closely-related genomes Ani less than 80, not to polish...\n" + TextColor.END)
+            return 
+        ani.parseAni(out)
     
 
     file_path = db_dir + '/*'
