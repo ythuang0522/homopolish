@@ -23,7 +23,11 @@ def computeAni(draft,db_txt,path):
     out = path + '/ANI.txt'
     Ani_cmd = 'fastANI -q {draft} --rl {db_txt} -o {out}'.format(draft=draft,db_txt=db_txt,out=out)
     os.system(Ani_cmd)
-    return out
+    
+    if os.path.isfile(out):
+        return out
+    else:
+        return
 
 def parseAni(db_txt):
     remove_file=[]
