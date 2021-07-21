@@ -231,10 +231,7 @@ def genus_species_polish(out, assembly_name, output_dir_debug, mash_screen, asse
             contig.id = contig.id.replace('/', '_')
             
         contig_name, contig_output_dir = write_for_new_fasta(contig, output_dir_debug)
-        
-        if download_path == None: # which didn't polish,cuz of ani less than 80%
-            out.append(contig_name)
-            continue               
+             
             
         # alignment
         paf = alignment.align(contig_name, minimap_args, threads, download_path, contig_output_dir)
@@ -271,9 +268,6 @@ def without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, m
         # download homologous
         download_path = download_action(ncbi_id, contig_output_dir,contig_name)
         
-        if download_path == None: # contig which didn't polish,cuz of ani less than 80%
-            out.append(contig_name)
-            continue        
         # alignment
         paf = alignment.align(contig_name, minimap_args, threads, download_path, contig_output_dir)
         
