@@ -206,7 +206,8 @@ def download(path, ncbi_id, url_list,contig_name):
     pool = multiprocessing.Pool(cpus if cpus < max_pool_size else max_pool_size)
     All_db=[]
     for id, url in zip(ncbi_id, url_list):
-        All_db = ani.putInList(db_dir,url,id,All_db)
+        
+        All_db = ani.putInList(db_dir,url,id,All_db) #Construct a list which contains All homologus sequence file path
         try:
             pool.apply_async(run_process, args=(id, url, db_dir))
         except multiprocessing.BufferTooShort as e:
@@ -220,14 +221,15 @@ def download(path, ncbi_id, url_list,contig_name):
     pool.close()
     pool.join()
     
-    db_txt=ani.writeDbInTxt(All_db,path)
+    db_txt=ani.writeDbInTxt(All_db,path) #Construct a text file which contains All homologus sequence file path  as FastAni input 
     
     if contig_name != None : # meta don't use ani until version upgrade 
-        out=ani.computeAni(contig_name,db_txt,path)
+        
+        out=ani.computeAni(contig_name,db_txt,path) #compute Ani
         if out == None :
             sys.stderr.write(TextColor.PURPLE + "Closely-related genomes Ani less than 80, not to polish...\n" + TextColor.END)
             return 
-        ani.parseAni(out)
+        ani.parseAni(out) #Filter noise which Ani <99 or distance >5
     
 
     file_path = db_dir + '/*'
