@@ -227,9 +227,9 @@ def download(path, ncbi_id, url_list,contig_name):
         
         out=ani.computeAni(contig_name,db_txt,path) #compute Ani
         if out == None :
-            sys.stderr.write(TextColor.PURPLE + "Closely-related genomes Ani less than 80, not to polish...\n" + TextColor.END)
-            return 
-        ani.parseAni(out) #Filter noise which Ani <99 or distance >5
+            sys.stderr.write(TextColor.PURPLE + "Closely-related genomes Ani less than 80, or sequence too short , only polish by Mash \n" + TextColor.END)
+        else:
+            ani.parseAni(out) #Filter noise which Ani <99 or distance >5
     
 
     file_path = db_dir + '/*'
