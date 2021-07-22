@@ -3,7 +3,7 @@
 
 
 # Introduction
-Homopolish is a genome polisher originally developed for Nanopore and subsequently extended for PacBio CLR. It generates a high-quality genome (>Q50) for virus, bacteria, and fungus. Nanopore/PacBio systematic errors are corrected by retreiving homologs from closely-related genomes and polished by an SVM. When paired with Racon and Medaka, the genomes can reach Q50-90 (>99.999%) accuracy on Nanopore R9.4/10.3 flowcells (Guppy >3.x). For PacBio CLR, Homopolish also improves the majority of Flye-assembled genomes to Q90 (see [Reference](#reference)).
+Homopolish is a genome polisher originally developed for Nanopore and subsequently extended for PacBio CLR. It generates a high-quality genome (>Q50) for virus, bacteria, and fungus. Nanopore/PacBio systematic errors are corrected by retreiving homologs from closely-related genomes and polished by an SVM. When paired with Racon and Medaka, the genome quality can reach Q50-90 (>99.999%) on Nanopore R9.4/10.3 flowcells (Guppy >3.4). For PacBio CLR, Homopolish also improves the majority of Flye-assembled genomes to Q90 (see [Accuracy](#accuracy)).
 
 # Installation
 Homopolish is recommendated to install and run within a conda environment
@@ -13,7 +13,7 @@ Homopolish is recommendated to install and run within a conda environment
 	conda env create -f environment.yml
 	conda activate homopolish
 
-Homopolish can be also installed from bioconda. An executable file, homopolish, should be available in the virtual env. 
+Homopolish is available in bioconda but not guaranteed to be the latest version. An executable file, homopolish, will be found after conda installation. 
 
 	conda create -n homopolish -c conda-forge -c bioconda homopolish
 
@@ -32,22 +32,22 @@ gunzip bacteria.msh.gz
     
 # Quick usage
 
-Homopolish should be run with a pre-trained model (R9.4.pkl/R10.3.pkl for Nanopore and pb.pkl for PacBio CLR) and one sketch (virus, bacteria, or fungi). For Nanopore sequencing, Homopolish should be run after the Racon-Medaka pipeline as it only removes indel errors. For PacBio CLR sequencing, it can be run directly after Flye-assembly pipline. For instance, if your Medaka-polished genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
+Homopolish should be run with a pre-trained model (R9.4.pkl/R10.3.pkl for Nanopore and pb.pkl for PacBio CLR) and one sketch (virus, bacteria, or fungi). For Nanopore sequencing, Homopolish should be run after the Racon-Medaka pipeline as it only removes indel errors. For PacBio CLR sequencing, it can be invoked directly after Flye assembly. For instance, if your Medaka-polished genome (yourgenome.fasta) is bacteria and sequenced by R9.4 flowcell, please type
 ```
 python3 homopolish.py polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
 ```
 
-Note that if installed from bioconda, you should directly invoke the executable file.
+If installed from bioconda, you should directly invoke the script.
 ```
 homopolish polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
 ```
 
-You also can set ```-g``` to specify particular genus and species names in [NCBI](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt) without mash searching.
+You can specify particular genus and species via ```-g``` (Taxanomic names in [NCBI](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt)) without mash searching.
 ```
 python3 homopolish.py polish -a yourgenome.fasta -g genusname_speciesname -m R9.4.pkl -o youroutput
 ```
 
-If you wanna use your own local genomes instead of NCBI, specify the path to your local database via ```-l```.
+If you wanna use private local genomes instead of NCBI, specify the path to your own (fasta) database via ```-l```.
 ```
 python3 homopolish.py polish -a yourgenome.fasta -l path_to_your_genomes.fasta -m R9.4.pkl -o youroutput
 ```
@@ -123,17 +123,17 @@ If you use the parameter ```-d```, directory content in a tree-like format is be
     └── ......
 ```
 
-# Reference
+# Accuracy
 
-Comparison of genome accuracy polished by Racon, Medaka, MarginPolish, HELEN, and Homopolish on Nanopore R9.4. Median Q scores were computed by [fastmer](https://github.com/jts/assembly_accuracy/blob/master/fastmer.py). We note that these are based on early ONT basecaller (Guppy 3.2). After Guppy 3.4, we have seen significant improvement and consistent >Q50 genomes.
+Comparison of genome accuracy polished by Racon, Medaka, MarginPolish, HELEN, and Homopolish on Nanopore R9.4. Median Q scores were computed by [fastmer](https://github.com/jts/assembly_accuracy/blob/master/fastmer.py). We note that these are based on early ONT basecaller (Guppy 3.2). After Guppy 3.4, we have seen consistent >Q50 genomes.
 ![Accuracy of Homopolish](https://www.biorxiv.org/content/biorxiv/early/2020/09/20/2020.09.19.304949/F1.large.jpg)
 ![Accuracy of Homopolish](https://www.biorxiv.org/content/biorxiv/early/2020/09/20/2020.09.19.304949/F2.large.jpg)
 
-Since v0.3, we found [FastANI](https://github.com/ParBLiSS/FastANI) is more accurate than [mash](https://github.com/marbl/Mash) for distinguishing highly-similar genomes. The new FastANI version further boosted the accuracy of R9.4 and R10.3 (though still based on Guppy 3.2).
+Since v0.3, we found [FastANI](https://github.com/ParBLiSS/FastANI) is more accurate than [mash](https://github.com/marbl/Mash) for selecting highly-similar genomes for polishing. The FastANI version improved the accuracy of R9.4 and R10.3 (see below Guppy 3.2 results). We note that short contigs/plasmids (<~6kb) won't benefit from FastANI as it can't output distance estimatino.
 ![R9.4 of Homopolish](https://github.com/ythuang0522/homopolish/blob/master/images/R9.4.png)
 ![R10.3 of Homopolish](https://github.com/ythuang0522/homopolish/blob/master/images/R10.3.png)
 
-With the addition of FastANI for distinguishing highly-similar genomes, PacBio CLR assembled by Flye can now be also siginificantly improved by Homopolish.
+With the addition of FastANI, genomes sequenced by PacBio CLR (and assembled by Flye) can now be also siginificantly improved by Homopolish.
 ![PacBioCLR of Homopolish](https://github.com/ythuang0522/homopolish/blob/master/images/PacBio%20CLR.jpg)
 
 # Citation
