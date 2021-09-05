@@ -62,9 +62,9 @@ def pileup(paf, genome_size):
                     
                     elif flag == 1:
                         longdel_count = 0
-                        arr[start_pos][base] += 1 #ex. 100bp ?∫A arr1[100][0] = 1
+                        arr[start_pos][base] += 1 #arr1[100][0] = 1
                         coverage[start_pos] += 1
-                        start_pos += 1 #?õ‰?‰∏Äbp
+                        start_pos += 1 
                     elif flag == 2: 
                         # *gc
                         # -01
@@ -73,7 +73,8 @@ def pileup(paf, genome_size):
                         if mismatch != 1:
                             mismatch += 1
                         else:
-                            arr[start_pos][base] += 1 #‰∏çÂ?mismatchÁ¥Ä??                            coverage[start_pos] += 1 
+                            arr[start_pos][base] += 1 #Mismatch position
+                            coverage[start_pos] += 1 
                             start_pos += 1
                         
                     elif flag == 3: 

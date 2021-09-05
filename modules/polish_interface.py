@@ -267,7 +267,6 @@ def without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, m
         '''
         # download homologous
         download_path = download_action(ncbi_id, contig_output_dir,contig_name)
-        
         # alignment
         paf = alignment.align(contig_name, minimap_args, threads, download_path, contig_output_dir)
         
