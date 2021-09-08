@@ -176,7 +176,7 @@ def meta_polish(out, assembly_name, output_dir_debug, mash_screen, assembly, mod
 
     # alignment
     # align_start_time = time.time()
-    paf = alignment.align(assembly, minimap_args, threads, db_path, output_dir_debug)
+    paf = alignment.align(assembly, minimap_args, threads, download_path, output_dir_debug)
 
     # if os.stat(paf).st_size == 0:
     #     sys.stderr.write(TextColor.PURPLE + "Minimap2 can't align, not to polish...\n" + TextColor.END)
