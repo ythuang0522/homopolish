@@ -201,7 +201,7 @@ def meta_polish(out, assembly_name, output_dir_debug, mash_screen, assembly, mod
         os.system(cut_cmd)
 
         #check homopolish and run homopolish
-        out.append(check_homopolish(paf, contig_name, contig_output_dir, contig, minimap_args, threads, download_path, model_path))
+        out.append(check_homopolish(paf_name, contig_name, contig_output_dir, contig, minimap_args, threads, download_path, model_path))
 
     contig_end_time = time.time()
     contig_time = get_elapsed_time_string(contig_start_time, contig_end_time)
