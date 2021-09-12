@@ -259,12 +259,12 @@ def without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, m
         select_end_time = time.time()
         select_time = get_elapsed_time_string(select_start_time, select_end_time)
         print_stage_time('Select closely-related genomes', select_time)
-        '''
+        
         if len(ncbi_id) < 5:  # Would'nt polish if closely-related genomes less than 5
             sys.stderr.write(TextColor.PURPLE + "This contig " + contig.id + " closely-related genome is less than 5, not to polish...\n" + TextColor.END)
             out.append(contig_name)
-            continue
-        '''
+            return out
+        
         # download homologous
         download_path = download_action(ncbi_id, contig_output_dir,contig_name)
         # alignment
