@@ -263,15 +263,15 @@ def without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, m
         if len(ncbi_id) < 5:  # Would'nt polish if closely-related genomes less than 5
             sys.stderr.write(TextColor.PURPLE + "This contig " + contig.id + " closely-related genome is less than 5, not to polish...\n" + TextColor.END)
             out.append(contig_name)
-            return out
+            continue
+        else:
+            # download homologous
+            download_path = download_action(ncbi_id, contig_output_dir,contig_name)
+            # alignment
+            paf = alignment.align(contig_name, minimap_args, threads, download_path, contig_output_dir)
         
-        # download homologous
-        download_path = download_action(ncbi_id, contig_output_dir,contig_name)
-        # alignment
-        paf = alignment.align(contig_name, minimap_args, threads, download_path, contig_output_dir)
-        
-        #check homopolish and run homopolish
-        out.append(check_homopolish(paf, contig_name, contig_output_dir, contig, minimap_args, threads, download_path, model_path))
+            #check homopolish and run homopolish
+            out.append(check_homopolish(paf, contig_name, contig_output_dir, contig, minimap_args, threads, download_path, model_path))
         
     return out
  
