@@ -197,7 +197,7 @@ def parser_genus_species(genus_species, download_contig_nums=None):
     '''
     return ncbi_id, url_list 
 
-def download(path, ncbi_id, url_list,contig_name): 
+def download(path, ncbi_id, url_list,contig_name,coverage,distance): 
     
     db_dir = path + '/homologous_sequences/'
     db_dir = FileManager.handle_output_directory(db_dir)
@@ -229,7 +229,7 @@ def download(path, ncbi_id, url_list,contig_name):
         if out == None :
             sys.stderr.write(TextColor.PURPLE + "Closely-related genomes Ani less than 80, or sequence too short , only polish by Mash \n" + TextColor.END)
         else:
-            ani.parseAni(out) #Filter noise which Ani <99 or distance >5
+            ani.parseAni(out,coverage,distance) #Filter noise which Ani <99 or distance >5
     
 
     file_path = db_dir + '/*'

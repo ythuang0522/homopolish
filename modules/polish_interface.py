@@ -14,6 +14,7 @@ from modules.utils.TextColor import TextColor
 from modules.utils.FileManager import FileManager
 
 
+
 def print_system_log(stage):
     timestr = time.strftime("[%Y/%m/%d %H:%M]")
     sys.stderr.write(TextColor.GREEN + str(timestr) +" INFO: Stage: "+ stage + "\n" + TextColor.END)
@@ -136,12 +137,12 @@ def check_homopolish(paf, contig_name, contig_output_dir, contig, minimap_args, 
     
 
 
-def download_action(ncbi_id, homologous_output_dir,contig_name =None ):
+def download_action(ncbi_id, homologous_output_dir,contig_name =None,coverage=None,distance=None):
     download_start_time = time.time()
     print_system_log('Download closely-related genomes')
     url_list = download.parser_url(ncbi_id)
     sys.stderr.write(TextColor.GREEN + " INFO: " + str(len(url_list)) + " homologous sequence need to download: \n" + TextColor.END)
-    db_path = download.download(homologous_output_dir, ncbi_id, url_list,contig_name)       
+    db_path = download.download(homologous_output_dir, ncbi_id, url_list,contig_name,coverage,distance)       
     download_end_time = time.time()
     download_time = get_elapsed_time_string(download_start_time, download_end_time)
     print_stage_time('Download closely-related genomes time', download_time)
@@ -149,7 +150,7 @@ def download_action(ncbi_id, homologous_output_dir,contig_name =None ):
 
 
 
-def meta_polish(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta):
+def meta_polish(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta,coverage,distance):
     
     # create a directory
     homologous_output_dir = make_output_dir("homologous", output_dir_debug)
@@ -170,7 +171,7 @@ def meta_polish(out, assembly_name, output_dir_debug, mash_screen, assembly, mod
         return
 
     # download homologous
-    download_path = download_action(ncbi_id, homologous_output_dir)
+    download_path = download_action(ncbi_id, homologous_output_dir,coverage,distance)
 
 
 
@@ -210,7 +211,7 @@ def meta_polish(out, assembly_name, output_dir_debug, mash_screen, assembly, mod
 
 
 
-def genus_species_polish(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta):
+def genus_species_polish(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta,coverage,distance):
     
     # create a directory
     homologous_output_dir = make_output_dir("homologous", output_dir_debug)
@@ -222,7 +223,7 @@ def genus_species_polish(out, assembly_name, output_dir_debug, mash_screen, asse
     ncbi_id, url_list = download.parser_genus_species(genus_species, download_contig_nums)
 
     # download homologous
-    download_path = download_action(ncbi_id, homologous_output_dir,assembly)
+    download_path = download_action(ncbi_id, homologous_output_dir,assembly,coverage,distance)
     
 
     # Each contig alignment and polish
@@ -243,7 +244,7 @@ def genus_species_polish(out, assembly_name, output_dir_debug, mash_screen, asse
 
 
 
-def without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta):
+def without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug,meta,coverage,distance):
 
     # Each contig to mash and alignment and polish
     for contig in SeqIO.parse(assembly, 'fasta'):
@@ -266,7 +267,7 @@ def without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, m
             continue
         else:
             # download homologous
-            download_path = download_action(ncbi_id, contig_output_dir,contig_name)
+            download_path = download_action(ncbi_id, contig_output_dir,contig_name,coverage,distance)
             # alignment
             paf = alignment.align(contig_name, minimap_args, threads, download_path, contig_output_dir)
         
@@ -303,7 +304,7 @@ def local_DB(out, assembly_name, output_dir_debug, mash_screen, assembly, model_
 
 
 
-def polish_genome(mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta, local_DB_path):
+def polish_genome(mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta, local_DB_path,coverage,distance):
     output_dir = FileManager.handle_output_directory(output_dir)
 
     # create a directory
@@ -319,13 +320,13 @@ def polish_genome(mash_screen, assembly, model_path, sketch_path, genus_species,
         out = local_DB(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta, local_DB_path)
     
     elif meta:  # metagenome used screen
-        out = meta_polish(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta)
+        out = meta_polish(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta,coverage,distance)
 
     elif genus_species:   # given genus_species
         out = genus_species_polish(out, assembly_name, output_dir_debug,mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta)
 
     else:  # single genome without given genus_species -> screen or dist
-        out = without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta)
+        out = without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta,coverage,distance)
         
     os.system('cat {} > {}/{}_homopolished.fasta'.format(' '.join(out), output_dir, assembly_name))
     total_end_time = time.time()
@@ -342,7 +343,7 @@ def polish_genome(mash_screen, assembly, model_path, sketch_path, genus_species,
 
 
 
-def make_train_data(mash_screen, assembly, reference, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug):
+def make_train_data(mash_screen, assembly, reference, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug,coverage,distance):
     output_dir = FileManager.handle_output_directory(output_dir)
     contig_output_dir_debug = make_output_dir("debug", output_dir)
     
@@ -376,7 +377,7 @@ def make_train_data(mash_screen, assembly, reference, sketch_path, genus_species
         print_system_log('Download closely-related genomes')
         url_list = download.parser_url(ncbi_id)
         sys.stderr.write(TextColor.GREEN + " INFO: " + str(len(url_list)) + " homologous sequence need to download: \n" + TextColor.END)
-        db_path = download.download(contig_output_dir, ncbi_id, url_list)
+        db_path = download.download(contig_output_dir, ncbi_id, url_list,coverage,distance)
 
 
         seq_paf = alignment.align(contig_name, minimap_args, threads, db_path, contig_output_dir)
@@ -393,3 +394,13 @@ def make_train_data(mash_screen, assembly, reference, sketch_path, genus_species
             sys.stderr.write(TextColor.PURPLE + contig.id + " minimap2 can't align......\n" + TextColor.END)
 
         shutil.move(dataframe_path, output_dir+'/'+assembly_name+'.feather')
+        
+        
+        
+def mismatchFix(draftGenomeFile,readsFile):
+   FixClass = VAtypeClass.FixSNP()
+   FixClass.draft_genome_file = draftGenomeFile
+   FixClass.read = readsFile
+   SNPfix.star_fixed(FixClass)
+     
+ 
