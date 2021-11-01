@@ -29,7 +29,7 @@ def computeAni(draft,db_txt,path):
     else:
         return
 
-def parseAni(db_txt):
+def parseAni(db_txt,coverage,distance):
     remove_file=[]
     count = 0
     with open(db_txt,'r') as f:
@@ -41,7 +41,7 @@ def parseAni(db_txt):
             first = float(line[3])
             second = float(line[4])
             
-            if second - first > 5 or Ani <= 99:
+            if second - first > distance or Ani <= coverage:
                 remove_file.append(line[1])
     
     if count != len(remove_file):

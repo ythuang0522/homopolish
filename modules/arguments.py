@@ -91,6 +91,20 @@ def add_common_arguments(parser):
         default=False,
         help="Your assembly genome is metagenome. [no]"
     )
+    parser.add_argument(
+        "--coverage",
+        type = int,
+        required  = False,
+        default = 99,
+        help="Coverge. [99]"
+    )
+    parser.add_argument(
+        "--distance",
+        type = int,
+        required  = False,
+        default = 5,
+        help="Ani distance. [5]"
+    )
 
     return parser
 def add_polish_arguments(parser):
@@ -166,3 +180,18 @@ def add_train_data_arguments(parser):
         help="[REQUIRED] True reference aligned to assembly genome. Include labels in output."
     )
     return parser
+    
+    
+def add_mismatchFix_arguments(parser):
+    parser.add_argument(
+        "--draftGenomeFile",
+        type = str,
+        required  = True,
+        help="Draft genome"
+    )
+    parser.add_argument(
+        "--readsFile",
+        type = str,
+        required  = True,
+        help="nanpore reads"
+    )
