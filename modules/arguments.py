@@ -182,16 +182,3 @@ def add_train_data_arguments(parser):
     return parser
     
     
-def add_mismatchFix_arguments(parser):
-    parser.add_argument(
-        "--draftGenomeFile",
-        type = str,
-        required  = True,
-        help="Draft genome"
-    )
-    parser.add_argument(
-        "--readsFile",
-        type = str,
-        required  = True,
-        help="nanpore reads"
-    )

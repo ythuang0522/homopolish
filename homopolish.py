@@ -4,7 +4,6 @@ from modules.arguments import *
 from modules.polish_interface import polish_genome
 from modules.polish_interface import make_train_data
 from modules.train_interface import train_model
-from modules.polish_interface import mismatchFix
 import os
 from os import path
 
@@ -36,9 +35,6 @@ def main():
     add_train_data_arguments(parser_make_train_data)    
     add_common_arguments(parser_make_train_data)
 
-    parser_mismatchFix = subparsers.add_parser("mismatchFix", help="fix mismatch")
-    add_mismatchFix_arguments(parser_mismatchFix)
-
 
  
     FLAGS, unparsed = parser.parse_known_args()
@@ -57,9 +53,6 @@ def main():
                 FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums, FLAGS.debug,FLAGS.coverage,FLAGS.distance)
     
 
-    elif FLAGS.sub_command == "mismatchFix":
-        mismatchFix(FLAGS.draftGenomeFile,FLAGS.readsFile)   
-        
     elif FLAGS.version is True:
         print("Homopolish VERSION: ", __version__)
 
