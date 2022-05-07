@@ -221,9 +221,14 @@ def genus_species_polish(out, assembly_name, output_dir_debug, mash_screen, asse
     print("Genus: "+genus_species)
     collect_start_time = time.time()
     ncbi_id, url_list = download.parser_genus_species(genus_species, download_contig_nums)
-
+   
+    ncbi_id_Ary = []
+    for data in url_list:
+      ncbi_id_val = data.split('/')[-1]
+      ncbi_id_Ary.append(ncbi_id_val)
+  
     # download homologous
-    download_path = download_action(ncbi_id, homologous_output_dir,assembly,coverage,distance)
+    download_path = download_action(ncbi_id_Ary, homologous_output_dir,assembly,coverage,distance)
     
 
     # Each contig alignment and polish
@@ -261,6 +266,7 @@ def without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, m
         select_time = get_elapsed_time_string(select_start_time, select_end_time)
         print_stage_time('Select closely-related genomes', select_time)
         
+       
         if len(ncbi_id) < 5:  # Would'nt polish if closely-related genomes less than 5
             sys.stderr.write(TextColor.PURPLE + "This contig " + contig.id + " closely-related genome is less than 5, not to polish...\n" + TextColor.END)
             out.append(contig_name)
@@ -323,7 +329,7 @@ def polish_genome(mash_screen, assembly, model_path, sketch_path, genus_species,
         out = meta_polish(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta,coverage,distance)
 
     elif genus_species:   # given genus_species
-        out = genus_species_polish(out, assembly_name, output_dir_debug,mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta)
+        out = genus_species_polish(out, assembly_name, output_dir_debug,mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta,coverage,distance)
 
     else:  # single genome without given genus_species -> screen or dist
         out = without_genus(out, assembly_name, output_dir_debug, mash_screen, assembly, model_path, sketch_path, genus_species, threads, output_dir, minimap_args, mash_threshold, download_contig_nums, debug, meta,coverage,distance)
