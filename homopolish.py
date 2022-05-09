@@ -6,6 +6,8 @@ from modules.polish_interface import make_train_data
 from modules.train_interface import train_model
 import os
 from os import path
+from modules.VAtypeClass import FixSNP
+from modules.mod_polish import getPos
 
 
 def main():
@@ -35,7 +37,10 @@ def main():
     add_train_data_arguments(parser_make_train_data)    
     add_common_arguments(parser_make_train_data)
 
-
+    
+    mod_polish = subparsers.add_parser('mod_polish',help = "polish genome by reads")
+    add_modpolish_arguments(mod_polish)
+    
  
     FLAGS, unparsed = parser.parse_known_args()
 
@@ -52,7 +57,35 @@ def main():
         make_train_data(FLAGS.mash_screen, FLAGS.assembly, FLAGS.reference, FLAGS.sketch_path, FLAGS.genus, FLAGS.threads, \
                 FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums, FLAGS.debug,FLAGS.coverage,FLAGS.distance)
     
-
+    
+    elif FLAGS.sub_command == 'mod_polish':
+        if(FLAGS.fastq == "" and FLAGS.bam == ""):
+            print("need fastq or bam file!")
+            return
+        
+        fixData = FixSNP()
+        fixData.draft_genome_file = FLAGS.fasta
+        fixData.reads_file = FLAGS.fastq
+        fixData.get_fixCSV_Flag = FLAGS.outFixCSV 
+        fixData.spPattern = FLAGS.pattern
+        fixData.bamFile = FLAGS.bam    
+        getPos(fixData)
+    
+    elif FLAGS.sub_command == 'mod_polish_posData':
+        if(FLAGS.fastq == "" and FLAGS.bam == ""):
+            print("need fastq or bam file!")
+            return
+        fixData = FixSNP()
+        fixData.draft_genome_file = FLAGS.fasta
+        fixData.reads_file = FLAGS.fastq
+        fixData.get_fixCSV_Flag = FLAGS.outFixCSV 
+        fixData.get_MissCSV_Flag = FLAGS.outMissCSV
+        fixData.get_EorCSV_Flag = FLAGS.outErrorCSV
+        fixData.spPattern = FLAGS.pattern
+        fixData.bamFile = FLAGS.bam    
+        getPos(fixData)
+    
+    
     elif FLAGS.version is True:
         print("Homopolish VERSION: ", __version__)
 

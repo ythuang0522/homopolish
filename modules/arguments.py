@@ -181,4 +181,62 @@ def add_train_data_arguments(parser):
     )
     return parser
     
+def add_modpolish_arguments(parser):
+    parser.add_argument(
+        "-a",
+        "--fasta",
+        type = str,
+        required  = True,
+        help="fasta file"
+    )
+    parser.add_argument(
+        "-q",
+        "--fastq",
+        type = str,
+        required  = False,
+        default = "",
+        help="fastq file"
+    )
+    parser.add_argument(
+        "-b",
+        "--bam",
+        type = str,
+        required  = False,
+        default = "",
+        help="bam file"
+    )
+    parser.add_argument(
+        "-p",
+        "--pattern",
+        type=str,
+        required=False,
+        default = "",
+        help = "special pattern"
+    )
+    parser.add_argument(
+        "-F",
+        "--outFixCSV",
+        required  = False,
+        type = bool,
+        default = False,
+        help = "output mod_polish fixed position"
+    )
+    parser.add_argument(
+        "-M",
+        "--outMissCSV",
+        required  = False,
+        type = bool,
+        default = False,
+        help = "output mod_polish Miss position"
+    )
+    parser.add_argument(
+        "-E",
+        "--outErrorCSV",
+        required  = False,
+        type = bool,
+        default = False,
+        help = "output mod_polish Error position"
+    )    
+
+    
     

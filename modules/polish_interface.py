@@ -402,11 +402,5 @@ def make_train_data(mash_screen, assembly, reference, sketch_path, genus_species
         shutil.move(dataframe_path, output_dir+'/'+assembly_name+'.feather')
         
         
-        
-def mismatchFix(draftGenomeFile,readsFile):
-   FixClass = VAtypeClass.FixSNP()
-   FixClass.draft_genome_file = draftGenomeFile
-   FixClass.read = readsFile
-   SNPfix.star_fixed(FixClass)
-     
+
  
