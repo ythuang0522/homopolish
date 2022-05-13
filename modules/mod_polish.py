@@ -1,39 +1,41 @@
 import sys
+import os
 import numpy as np
 import time
-import modules.download as dl
-from modules.VAtypeClass import FixSNP
 import gzip
-import modules.polish_interface as mlp
-from Bio import SeqIO
-import modules.alignment as ma
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-import glob
 import pysam
 import pandas as pds
-from modules.utils.FileManager import FileManager
 import multiprocessing
-from modules import ani
-from modules.utils.TextColor import TextColor
-from modules.VAtypeClass import FixSNP
-import os
+import glob
+import modules.download as dl
+import modules.polish_interface as mlp
+import modules.alignment as ma
 import modules.getCSV as CSV
 
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+from modules.utils.FileManager import FileManager
+from modules.utils.TextColor import TextColor
+from modules import ani
+from modules.VAtypeClass import FixSNP
 
 
 
-def fixFlagFn(fixData,fixPosAry,totalCovergae):
+
+def fixFlagFn(fixData,fixPosAry,totalCovergae,fileName):
    #use expected value: (fixPos/coverage)/length
    num_fixPos = len(fixPosAry)
    genLen = len(fixData.seq)   
    fixFlag = True
-   fix_expected_val = (num_fixPos/totalCovergae)/genLen
-   print(num_fixPos)
-   print(totalCovergae)
-   print(genLen)
-   print(fix_expected_val*100000)
-   if((fix_expected_val*100000)<0.000001):
+   average_cov  = totalCovergae/genLen
+   data = [len(fixPosAry),totalCovergae,average_cov,genLen]
+   df = pds.DataFrame(data)
+   df = df.reset_index()
+   df.to_csv("modpolish/"+fileName+"_expected_val.csv",encoding="ascii",index=False)
+   
+   fix_expected_val = (num_fixPos/average_cov)/genLen
+   if(fix_expected_val<0.000001):
      fixFlag = False
      
    return fixFlag
@@ -58,31 +60,30 @@ def getPos(fixData):
         R_misAry_bam,R_AllAry_bam,totalCovergae = MismatchPileup_read_bam(fixData.bamFile,len(fixData.seq))
     else:
         bamFile = getBamPileUp(fileName,16,fixData.draft_genome_file,fixData.reads_file)
-        print(bamFile)
         R_misAry_bam,R_AllAry_bam,totalCovergae = MismatchPileup_read_bam(bamFile,len(fixData.seq))
     
 
 
     
-    if(fixData.spPattern != ""):
+    if(fixData.spPattern == ""):
         fixary = getMisPosVal(R_misAry_bam,R_AllAry_bam,H_AllAry,fixData.seq) 
     else:
         fixary = fix_pos_homo_read_pattern(fixData,H_AllAry,R_misAry_bam,R_AllAry_bam,fixData.spPattern)
    
     
     #need to fix?
-    fixFlag = fixFlagFn(fixData,fixary,totalCovergae)
+    fixFlag = fixFlagFn(fixData,fixary,totalCovergae,fileName)
     if(fixFlag == False):
-      print("mismatch less than threshold!")
+      print("Methyl position less than threshold!")
       return
     
     if(fixData.get_fixCSV_Flag == True):
       CSV.getFixPosCSV(fileName,fixary)
      
-    if(fixData.get_EorCSV_Flag == True and fixData.get_fixCSV_Flag == True):
-       T_misAry,T_AllAry = getPileUpAry(fixData,"fixDraft/toolsFile",fixData.true_genome_file)#True misAry
-       FixEorPosAry = CSV.getFixEorPosAry(fileName+"_ErrorPos",fixData,T_AllAry,T_misAry,R_AllAry_bam,H_AllAry,fixary)
-       FixMissPosAry = CSV.getFixMisPosAry(fileName+"Pattern_MissPos",fixData,T_AllAry,T_misAry,R_AllAry_bam,H_AllAry,fixary)      
+    #if(fixData.get_EorCSV_Flag == True and fixData.get_fixCSV_Flag == True):
+       #T_misAry,T_AllAry = getPileUpAry(fixData,"Homo/"+fileName,fixData.true_genome_file)#True misAry
+       #FixEorPosAry = CSV.getFixEorPosCSV(fileName+"_ErrorPos",fixData,T_AllAry,T_misAry,R_AllAry_bam,H_AllAry,fixary)
+       #FixMissPosAry = CSV.getFixMisPosCSV(fileName+"Pattern_MissPos",fixData,T_AllAry,T_misAry,R_AllAry_bam,H_AllAry,fixary)      
     
     fixProcess(fixary,H_AllAry,fixData,fileName)
     del_file(fixData)
@@ -140,7 +141,7 @@ def dlHomoFile(fixData:FixSNP,fileName):
 
 
 
-def getSibVal(S_PosAry,S_percentRate):  # return Homogenome pos value
+def getSibVal(S_PosAry,S_percentRate):  # return Homogenome siblings pos value
     Homo_val = ""
     decision_Fix = False
 
@@ -240,7 +241,6 @@ def fix_pos_homo_read_pattern(fixData,S_AllAry,R_MisAry,R_Ary_bam,ST):
             elif(reads_all>=4 or reads_all <=(len(fixData.seq)-5)):    
                 q_all = 0
                 n_sum = 0
-                low_sum = 0
                 local_actg = ""
 
                 for i in range(reads_all-4,reads_all+5):
@@ -248,7 +248,6 @@ def fix_pos_homo_read_pattern(fixData,S_AllAry,R_MisAry,R_Ary_bam,ST):
                 for j in range(8):
                     n_sum += R_Ary_bam[reads_all][j][0]
                     q_all += R_Ary_bam[reads_all][j][1]
-                    low_sum += R_Ary_bam[reads_all][j][2]
                 if(q_all/n_sum < 15):
                     P_val,patt = pattern(ST,local_actg)
                     if(patt):
@@ -262,7 +261,6 @@ def fix_pos_homo_read_pattern(fixData,S_AllAry,R_MisAry,R_Ary_bam,ST):
         else:
             q_all = 0
             n_sum = 0
-            low_sum = 0
             local_actg = ""
             
             if(reads_all<4 or reads_all>(len(fixData.seq)-5)):
@@ -271,8 +269,7 @@ def fix_pos_homo_read_pattern(fixData,S_AllAry,R_MisAry,R_Ary_bam,ST):
                 local_actg += fixData.seq[i]
             for j in range(8):
                 n_sum += R_Ary_bam[reads_all][j][0]
-                q_all += R_Ary_bam[reads_all][j][1]
-                low_sum += R_Ary_bam[reads_all][j][2]    
+                q_all += R_Ary_bam[reads_all][j][1] 
             if(n_sum == 0):
              continue
             if(q_all/n_sum < 10):
@@ -282,7 +279,8 @@ def fix_pos_homo_read_pattern(fixData,S_AllAry,R_MisAry,R_Ary_bam,ST):
                     if(H_val == ''):
                         ary = [reads_all,P_val]
                         pos_ary.append(ary)
-                    else:
+                    #else:
+                    elif(H_val != fixData.seq[reads_all]):
                         ary = [reads_all,H_val]
                         pos_ary.append(ary)
     return pos_ary

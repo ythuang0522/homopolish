@@ -19,3 +19,4 @@ dependencies:
   - pyarrow=0.15.1
   - pycurl
   - fastani=1.32
+  - pysam

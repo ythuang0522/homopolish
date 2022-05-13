@@ -91,6 +91,24 @@ optional arguments:
                         [no]
   --mash_screen         Use mash screen. [mash dist]
 ```
+Run ```python3 homopolish.py mod_polish --help``` to view all the options:
+```
+usage: homopolish.py mod_polish -a dragt genome file path -q fastq file path -s SKETCH_PATH
+                            (-o output fix position csv)                          
+                        
+optional arguments:
+  -h, --help            show this help message and exit
+
+  -a Draft Genome File Path --Draft genome file path
+                        [REQUIRED] Path to a assembly genome.
+  -s SKETCH_PATH, --sketch_path SKETCH_PATH
+                        Path to a mash sketch file.
+                        Genus name
+                        Path to your local DB (ex: cat closely-related_genomes1.fasta closely-related_genomes2.fasta> DB.fasta)
+  -o                    Boolean,output mod_polish fix position csv
+  -q                    fastq File
+
+  
 # Output Files
 
 **Ordinary output:** 

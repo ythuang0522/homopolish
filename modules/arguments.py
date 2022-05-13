@@ -206,6 +206,13 @@ def add_modpolish_arguments(parser):
         help="bam file"
     )
     parser.add_argument(
+        "-s",
+        "--sketch_path",
+        type=str,
+        required=True,
+        help="Path to a mash sketch file."
+    )
+    parser.add_argument(
         "-p",
         "--pattern",
         type=str,
