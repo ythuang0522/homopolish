@@ -68,7 +68,8 @@ def main():
         fixData.reads_file = FLAGS.fastq
         fixData.get_fixCSV_Flag = FLAGS.outFixCSV 
         fixData.spPattern = FLAGS.pattern
-        fixData.bamFile = FLAGS.bam    
+        fixData.bamFile = FLAGS.bam   
+        fixData.sketch_path =  FLAGS.sketch_path       
         getPos(fixData)
     
     elif FLAGS.sub_command == 'mod_polish_posData':
