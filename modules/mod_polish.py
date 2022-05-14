@@ -29,11 +29,7 @@ def fixFlagFn(fixData,fixPosAry,totalCovergae,fileName):
    genLen = len(fixData.seq)   
    fixFlag = True
    average_cov  = totalCovergae/genLen
-   data = [len(fixPosAry),totalCovergae,average_cov,genLen]
-   df = pds.DataFrame(data)
-   df = df.reset_index()
-   df.to_csv("modpolish/"+fileName+"_expected_val.csv",encoding="ascii",index=False)
-   
+     
    fix_expected_val = (num_fixPos/average_cov)/genLen
    if(fix_expected_val<0.000001):
      fixFlag = False
