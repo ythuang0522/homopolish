@@ -60,7 +60,7 @@ If you wanna use private local genomes instead of NCBI, specify the path to your
 python3 homopolish.py polish -a yourgenome.fasta -l path_to_your_genomes.fasta -m R9.4.pkl -o youroutput
 ```
 
-## Other Options and usage
+### Other Options and usage
 
 Run ```python3 homopolish.py polish --help``` to view all the options:
 ```
@@ -100,19 +100,22 @@ optional arguments:
   --mash_screen         Use mash screen. [mash dist]
 ```
 
+### Output File
+The program's output files will be saved in the folder named youroutput (```-o youroutput``` ), and the polished genoem is named ```yourgenome_homopolished.fasta```.
+
 ## Quick usage for polishing modification errors
 Homopolish impleneted a submodule called modpolish for correcting modification-mediated errors. Given a draft genome with ONT reads (fastq), modpolish correcting the modification-mediated errors using reads, quality and homologs.
 ```
-homopolish python3 modpolish -a yourgenome.fasta -q fastq_path -m R9.4.pkl -s bacteria.msh -o youroutput
+python3 homopolish.py modpolish -a yourgenome.fasta -q fastq_path -m R9.4.pkl -s bacteria.msh -o youroutput
 ```
 You can supply the bam (i.e., reads to draft genome) insetad of reads for skipping the time-consuming alignment.
 ```
-homopolish python3 modpolish -a yourgenome.fasta -b bam_path -m R9.4.pkl -s bacteria.msh -o youroutput
+python3 homopolish.py modpolish -a yourgenome.fasta -b bam_path -m R9.4.pkl -s bacteria.msh -o youroutput
 ```
 
 Run ```python3 homopolish.py modpolish --help``` to view all the options:
 ```
-usage: homopolish.py modpolish -a dragt genome file path -q fastq file path -s SKETCH_PATH
+usage: python3 homopolish.py modpolish -a dragt genome file path -q fastq file path -s SKETCH_PATH
                             (-o output modified_position_csv)                          
                         
 optional arguments:
@@ -128,13 +131,10 @@ optional arguments:
   -q                    fastq File
 ```
   
-## Output Files
+### Output File of Modpolish
+A genome named ```yourgenome_modpolished.fasta``` will be outputted.
 
-**Ordinary output:** 
-
-All program's output files will be saved in the folder named youroutput(```-o youroutput``` ), and you will only get one file named ```yourgenome_homopolished.fasta```.
-
-**Debugging mode:** 
+## Debugging mode
 
 If you use the parameter ```-d```, directory content in a tree-like format is below.
 * ```homologous_sequences``` contains other homologous species
