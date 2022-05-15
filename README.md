@@ -115,8 +115,9 @@ python3 homopolish.py modpolish -a yourgenome.fasta -b bam_path -m R9.4.pkl -s b
 
 Run ```python3 homopolish.py modpolish --help``` to view all the options:
 ```
-usage: python3 homopolish.py modpolish -a dragt genome file path -q fastq file path -s SKETCH_PATH
-                            (-o output modified_position_csv)                          
+usage: python3 homopolish.py modpolish -a dragt genome file path -s SKETCH_PATH
+                                       [-q fastq file path | -b bam file path]
+                                       (-o OUTPUT_DIR)                          
                         
 optional arguments:
   -h, --help            show this help message and exit
@@ -127,8 +128,13 @@ optional arguments:
                         Path to a mash sketch file.
                         Genus name
                         Path to your local DB (ex: cat closely-related_genomes1.fasta closely-related_genomes2.fasta> DB.fasta)
-  -o                    Boolean,output mod_polish fix position csv
+  -o OUTPUT_DIR, --output_dir OUTPUT_DIR
+                        Path to the output directory. [output]
+
   -q                    fastq File
+
+  -b Bam File Path, --bam
+                        Path to a bam file     
 ```
   
 ### Output File of Modpolish
