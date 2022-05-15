@@ -206,6 +206,14 @@ def add_modpolish_arguments(parser):
         help="bam file"
     )
     parser.add_argument(
+        "-o",
+        "--output_dir",
+        type = str,
+        required  = False,
+        default = "./output/",
+        help="OUTPUT_DIR"
+    )
+    parser.add_argument(
         "-s",
         "--sketch_path",
         type=str,
@@ -220,30 +228,6 @@ def add_modpolish_arguments(parser):
         default = "",
         help = "special pattern"
     )
-    parser.add_argument(
-        "-F",
-        "--outFixCSV",
-        required  = False,
-        type = bool,
-        default = False,
-        help = "output mod_polish fixed position"
-    )
-    parser.add_argument(
-        "-M",
-        "--outMissCSV",
-        required  = False,
-        type = bool,
-        default = False,
-        help = "output mod_polish Miss position"
-    )
-    parser.add_argument(
-        "-E",
-        "--outErrorCSV",
-        required  = False,
-        type = bool,
-        default = False,
-        help = "output mod_polish Error position"
-    )    
-
+ 
     
     

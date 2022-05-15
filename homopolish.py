@@ -38,7 +38,7 @@ def main():
     add_common_arguments(parser_make_train_data)
 
     
-    mod_polish = subparsers.add_parser('mod_polish',help = "polish genome by reads")
+    mod_polish = subparsers.add_parser('modpolish',help = "polish genome by reads")
     add_modpolish_arguments(mod_polish)
     
  
@@ -58,7 +58,7 @@ def main():
                 FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums, FLAGS.debug,FLAGS.coverage,FLAGS.distance)
     
     
-    elif FLAGS.sub_command == 'mod_polish':
+    elif FLAGS.sub_command == 'modpolish':
         if(FLAGS.fastq == "" and FLAGS.bam == ""):
             print("need fastq or bam file!")
             return
@@ -66,20 +66,18 @@ def main():
         fixData = FixSNP()
         fixData.draft_genome_file = FLAGS.fasta
         fixData.reads_file = FLAGS.fastq
-        fixData.get_fixCSV_Flag = FLAGS.outFixCSV 
         fixData.spPattern = FLAGS.pattern
         fixData.bamFile = FLAGS.bam   
-        fixData.sketch_path =  FLAGS.sketch_path       
-        getPos(fixData)
+        fixData.sketch_path = FLAGS.sketch_path       
+        getPos(fixData,FLAGS.output_dir)
     
-    elif FLAGS.sub_command == 'mod_polish_posData':
+    elif FLAGS.sub_command == 'modpolish_posData':
         if(FLAGS.fastq == "" and FLAGS.bam == ""):
             print("need fastq or bam file!")
             return
         fixData = FixSNP()
         fixData.draft_genome_file = FLAGS.fasta
         fixData.reads_file = FLAGS.fastq
-        fixData.get_fixCSV_Flag = FLAGS.outFixCSV 
         fixData.get_MissCSV_Flag = FLAGS.outMissCSV
         fixData.get_EorCSV_Flag = FLAGS.outErrorCSV
         fixData.spPattern = FLAGS.pattern

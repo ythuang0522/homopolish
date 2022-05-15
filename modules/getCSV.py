@@ -2,7 +2,7 @@ import pandas as pds
 import modules.mod_polish as mp
 
 
-def getFixPosCSV(fileName,FixPosAry):
+def getFixPosCSV(fileName,FixPosAry,output_dir):
    if(len(FixPosAry)==0):
      print("number of fix-position is zero")
      return
@@ -12,8 +12,8 @@ def getFixPosCSV(fileName,FixPosAry):
     
    df = pds.DataFrame(finalAry)
    df = df.reset_index()
-   df.columns =["","pos"]
-   df.to_csv("modpolish/"+fileName+"_fix_position.csv",encoding="ascii",index=False)
+   df.columns =["","position"]
+   df.to_csv(output_dir+"/"+fileName+"_fix_position.csv",encoding="ascii",index=False)
 
 
 

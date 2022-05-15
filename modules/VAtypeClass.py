@@ -3,7 +3,7 @@ class FixSNP():
         self._seq = ""
         self._reads_file = ""
         self._sibilings = ""
-        self._sketch_path = "/big7_disk/NCBI_bacterial/genomes+plasmids.k21.s1000.msh"
+        self._sketch_path = ""
         self._output_dir = "Homo/"
         self._mash_threshold = 0.95
         self.dl_contig_nums = 20
@@ -13,7 +13,7 @@ class FixSNP():
         self._fix_genome_file = ""
         self._true_genome_file = ""
         self._norGenLen = 1000000
-        self._getFixPosCSV = False
+        self._getFixPosCSV = True
         self._getMissPosCSV = False
         self._getErrorPosCSV = False
         self._spPattern = ""

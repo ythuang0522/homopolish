@@ -38,7 +38,7 @@ def fixFlagFn(fixData,fixPosAry,totalCovergae,fileName):
 
 
 
-def getPos(fixData):
+def getPos(fixData,output_dir):
     fixData,flag = getGenLength(fixData)
     fileName = fixData.draft_genome_file.split('/')[-1].split('.')[0]
     
@@ -73,15 +73,9 @@ def getPos(fixData):
       print("Methyl position less than threshold!")
       return
     
-    if(fixData.get_fixCSV_Flag == True):
-      CSV.getFixPosCSV(fileName,fixary)
-     
-    #if(fixData.get_EorCSV_Flag == True and fixData.get_fixCSV_Flag == True):
-       #T_misAry,T_AllAry = getPileUpAry(fixData,"Homo/"+fileName,fixData.true_genome_file)#True misAry
-       #FixEorPosAry = CSV.getFixEorPosCSV(fileName+"_ErrorPos",fixData,T_AllAry,T_misAry,R_AllAry_bam,H_AllAry,fixary)
-       #FixMissPosAry = CSV.getFixMisPosCSV(fileName+"Pattern_MissPos",fixData,T_AllAry,T_misAry,R_AllAry_bam,H_AllAry,fixary)      
-    
-    fixProcess(fixary,H_AllAry,fixData,fileName)
+
+    contig_output_dir = fixProcess(fixary,H_AllAry,fixData,fileName,output_dir)
+    CSV.getFixPosCSV(fileName,fixary,contig_output_dir)
     del_file(fixData)
 
      
@@ -332,11 +326,10 @@ def getATCG_pos_use(index:int):
 
 def write_for_new_fasta(contig, output_dir_debug,fileName):
     timestr = time.strftime("[%Y/%m/%d %H:%M]")
-    sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO: RUN-ID: " + contig.id + "\n" + TextColor.END)
-    print(contig.id)
-    print(output_dir_debug)
+    
     # create a directory for each contig
     contig_output_dir = mlp.make_output_dir("contig", output_dir_debug, contig.id)
+    sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO: output dir: " + contig_output_dir + "\n" + TextColor.END)
     # new fasta for each contig
     contig_name = contig_output_dir + '/' + fileName + '.fasta'
     SeqIO.write(contig, contig_name, "fasta")
@@ -354,7 +347,7 @@ def fixGem(fasta,posAry):
   return fasta
 
 
-def fixProcess(fixAry,S_arr,fixData,fileName):        #fix the draft
+def fixProcess(fixAry,S_arr,fixData,fileName,out_dir):        #fix the draft
     if(len(fixAry)>1):
      #fix genome
      fixSeq = fixGem(fixData.seq,fixAry)
@@ -364,9 +357,10 @@ def fixProcess(fixAry,S_arr,fixData,fileName):        #fix the draft
          Seq(fixSeq),
          id=fixData.contig_id
      )
-     if(os.path.exists('modpolish') == False):
-        os.mkdir('modpolish')
-     contig_name, contig_output_dir=write_for_new_fasta(record,"modpolish",fileName)
+     if(os.path.exists(out_dir) == False):
+        os.mkdir(out_dir)
+     contig_name, contig_output_dir=write_for_new_fasta(record,out_dir,fileName+"_modpolish")
+    return contig_output_dir
 
 def MismatchPileup(file_name, genome_size):
     LONG_DELETION_LENGTH = 50
