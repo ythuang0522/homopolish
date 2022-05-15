@@ -115,8 +115,8 @@ python3 homopolish.py modpolish -a yourgenome.fasta -b bam_path -m R9.4.pkl -s b
 
 Run ```python3 homopolish.py modpolish --help``` to view all the options:
 ```
-usage: python3 homopolish.py modpolish -a dragt genome file path -s SKETCH_PATH
-                                       [-q fastq file path | -b bam file path]
+usage: python3 homopolish.py modpolish -a ASSEMBLY -s SKETCH_PATH
+                                       [ -q FASTQ | -b BAM ]
                                        (-o OUTPUT_DIR)                          
                         
 optional arguments:
