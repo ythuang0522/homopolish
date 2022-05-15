@@ -359,7 +359,7 @@ def fixProcess(fixAry,S_arr,fixData,fileName,out_dir):        #fix the draft
      )
      if(os.path.exists(out_dir) == False):
         os.mkdir(out_dir)
-     contig_name, contig_output_dir=write_for_new_fasta(record,out_dir,fileName+"_modpolish")
+     contig_name, contig_output_dir=write_for_new_fasta(record,out_dir,fileName+"_modpolished")
     return contig_output_dir
 
 def MismatchPileup(file_name, genome_size):
