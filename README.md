@@ -122,7 +122,7 @@ usage: python3 homopolish.py modpolish -a ASSEMBLY -s SKETCH_PATH
 optional arguments:
   -h, --help            show this help message and exit
 
-  -a Draft Genome File Path --Draft genome file path
+  -a ASSEMBLY,    --Draft genome file path
                         [REQUIRED] Path to a assembly genome.
   -s SKETCH_PATH, --sketch_path SKETCH_PATH
                         Path to a mash sketch file.
@@ -131,9 +131,9 @@ optional arguments:
   -o OUTPUT_DIR, --output_dir OUTPUT_DIR
                         Path to the output directory. [output]
 
-  -q                    fastq File
+  -q FASTQ,             fastq File
 
-  -b Bam File Path, --bam
+  -b BAM, --bam
                         Path to a bam file     
 ```
   
