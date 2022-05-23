@@ -70,6 +70,7 @@ usage: homopolish.py polish [-h] -m MODEL_PATH -a ASSEMBLY
                             [--mash_threshold MASH_THRESHOLD]
                             [--download_contig_nums DOWNLOAD_CONTIG_NUMS] [-d]
                             [--mash_screen]
+                            (-l LOCAL_DB_PATH) 
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -118,7 +119,8 @@ Run ```python3 homopolish.py modpolish --help``` to view all the options:
 usage: python3 homopolish.py modpolish -a ASSEMBLY -s SKETCH_PATH
                                        [ -q FASTQ | -b BAM ]
                                        (-o OUTPUT_DIR)
-                                       (-p SPECAIL_PATTERN)                          
+                                       (-p SPECAIL_PATTERN) 
+                                       (-l LOCAL_DB_PATH)                         
                         
 optional arguments:
   -h, --help            show this help message and exit
@@ -137,6 +139,9 @@ optional arguments:
   -b BAM,         --bam  Path to a bam file  
   
   -p SPECAIL_PATTERN,   string of supported  motif: CCAGC or GCAGC ...
+  
+  -l LOCAL_DB_PATH, --local_DB_path LOCAL_DB_PATH
+                        Path to your local DB (ex: cat closely-related_genomes1.fasta closely-related_genomes2.fasta> DB.fasta)
 ```
   
 ### Output File of Modpolish

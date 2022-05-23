@@ -68,8 +68,13 @@ def main():
         fixData.reads_file = FLAGS.fastq
         fixData.spPattern = FLAGS.pattern
         fixData.bamFile = FLAGS.bam   
-        fixData.sketch_path = FLAGS.sketch_path       
-        getPos(fixData,FLAGS.output_dir)
+        fixData.sketch_path = FLAGS.sketch_path 
+        fixData.thread = FLAGS.threads 
+        fixData.output_dir = FLAGS.output_dir  
+        
+        fixData.sib_files = FLAGS.sibilings_files  
+        print(fixData.sib_files )        
+        getPos(fixData,FLAGS.debug)
     
     elif FLAGS.sub_command == 'modpolish_posData':
         if(FLAGS.fastq == "" and FLAGS.bam == ""):
@@ -81,7 +86,8 @@ def main():
         fixData.get_MissCSV_Flag = FLAGS.outMissCSV
         fixData.get_EorCSV_Flag = FLAGS.outErrorCSV
         fixData.spPattern = FLAGS.pattern
-        fixData.bamFile = FLAGS.bam    
+        fixData.bamFile = FLAGS.bam 
+               
         getPos(fixData)
     
     

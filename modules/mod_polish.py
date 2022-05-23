@@ -11,6 +11,7 @@ import modules.download as dl
 import modules.polish_interface as mlp
 import modules.alignment as ma
 import modules.getCSV as CSV
+import shutil
 
 from Bio import SeqIO
 from Bio.Seq import Seq
@@ -37,25 +38,53 @@ def fixFlagFn(fixData,fixPosAry,totalCovergae,fileName):
    return fixFlag
 
 
+def getSibFile(fixData):
+   file_path = ""
+   
+   if not os.path.isdir(fixData.output_dir+"debug"):
+       os.makedirs(fixData.output_dir+"debug")
+   
+   
+   #use siblings from user side
+   if(fixData.sib_files != ""):
+     for sibFile in fixData.sib_files:
+        file_path = file_path +" "+sibFile
+     
+     print(file_path)
+     db_path = fixData.output_dir+"debug/All_homologous_sequences.fna.gz"
+     os.system('cat {} > {}'.format(file_path, db_path))
+   
+   else:
+    #download siblings homogenome file from NCBI
+    dlHomoFile(fixData)  
 
-def getPos(fixData,output_dir):
+
+def getPos(fixData,debug_mod):
+    if(fixData.output_dir[-1] != "/"):
+       fixData.output_dir = fixData.output_dir+"/"
+    
+    
     fixData,flag = getGenLength(fixData)
     fileName = fixData.draft_genome_file.split('/')[-1].split('.')[0]
     
+    
+    
+    
     #download homogenome file
-    dlHomoFile(fixData,fileName)  
+    getSibFile(fixData)
+    #dlHomoFile(fixData)  
     
     #Homogenomes array  
     print('load Homo')    
-    H_misAry,H_AllAry = getPileUpAry(fixData,"Homo/"+fileName,"Homo/"+fileName+"/All_homologous_sequences.fna.gz")   
-    
+    #H_misAry,H_AllAry = getPileUpAry(fixData,"Homo/"+fileName,"Homo/"+fileName+"/All_homologous_sequences.fna.gz")   
+    H_misAry,H_AllAry = getPileUpAry(fixData,fixData.output_dir+"debug",fixData.output_dir+"debug/All_homologous_sequences.fna.gz")   
     
     #Reads array   
     print('load Read')
     if(fixData.bamFile != ""):
         R_misAry_bam,R_AllAry_bam,totalCovergae = MismatchPileup_read_bam(fixData.bamFile,len(fixData.seq))
     else:
-        bamFile = getBamPileUp(fileName,16,fixData.draft_genome_file,fixData.reads_file)
+        bamFile = getBamPileUp(fixData,fileName,fixData.thread,fixData.draft_genome_file,fixData.reads_file)
         R_misAry_bam,R_AllAry_bam,totalCovergae = MismatchPileup_read_bam(bamFile,len(fixData.seq))
     
 
@@ -74,12 +103,15 @@ def getPos(fixData,output_dir):
       return
     
 
-    contig_output_dir = fixProcess(fixary,H_AllAry,fixData,fileName,output_dir)
+    contig_output_dir = fixProcess(fixary,H_AllAry,fixData,fileName)
     CSV.getFixPosCSV(fileName,fixary,contig_output_dir)
-    del_file(fixData)
+    
+    
+    if(debug_mod):
+     shutil.rmtree(fixData.output_dir+"debug")
 
      
-def del_file(fixData:FixSNP):
+def del_file(path):
    for file in glob.glob(fixData.rmFilePath+"/*"):
      if(os.path.isfile(file)):
         os.remove(file)
@@ -93,40 +125,37 @@ def getGenLength(fixData):
       flag = False      
   return fixData,flag
 
-def getBamPileUp(fileName,threads,fasta,fastq):
-    if(os.path.exists('Read') == False):
-        os.mkdir('Read')
-    if(os.path.exists('Read/'+fileName) == False):
-        os.mkdir('Read/'+fileName)
-    os.system('minimap2 -ax asm5 --cs=long -t {thread} {draft} {reference} > Read/{sam}/reads.sam'.format(thread=threads, draft=fasta, reference=fastq,sam=fileName))
-    os.system('samtools view -S -b Read/{f}/reads.sam > Read/{f}/reads.bam'.format(f=fileName))
-    os.system('samtools sort Read/{f}/reads.bam -o Read/{f}/reads_sorted.bam'.format(f=fileName))
-    os.system('samtools index Read/{f}/reads_sorted.bam'.format(f=fileName))
-    bam = 'Read/{f}/reads_sorted.bam'.format(f=fileName)
+def getBamPileUp(fixData:FixSNP,fileName,threads,fasta,fastq):
+    if not os.path.isdir(fixData.output_dir+"debug"):
+       os.makedirs(fixData.output_dir+"debug")
+    
+    os.system('minimap2 -ax asm5 --cs=long -t {thread} {draft} {reference} > '.format(thread=threads, draft=fasta, reference=fastq) + fixData.output_dir+'debug/reads.sam')
+    os.system('samtools view -S -b '+fixData.output_dir+'debug/reads.sam > '+fixData.output_dir+'debug/reads.bam'.format(f=fileName))
+    os.system('samtools sort '+fixData.output_dir+'debug/reads.bam -o '+fixData.output_dir+'debug/reads_sorted.bam')
+    os.system('samtools index '+fixData.output_dir+'debug/reads_sorted.bam')
+    bam = fixData.output_dir+'debug/reads_sorted.bam'
     return bam
     
     
 def getPileUpAry(fixData:FixSNP,pafPath,asemberlyFile):
 
-   if(os.path.exists('fixDraft') == False):
-        os.mkdir('fixDraft')
-   if(os.path.exists('fixDraft/toolsFile') == False):
-        os.mkdir('fixDraft/toolsFile')
-   ma.align(fixData.draft_genome_file,"asm5",10,"",pafPath,asemberlyFile)
-   misAry,posData_ary = MismatchPileup(pafPath+"/truth.paf",len(fixData.seq))#get SNP position ATCG array
+   if not os.path.isdir(fixData.output_dir+"debug"):
+       os.makedirs(fixData.output_dir+"debug")
+       
+   ma.align(fixData.draft_genome_file,"asm5",fixData.thread,"",fixData.output_dir+"debug",asemberlyFile)
+   misAry,posData_ary = MismatchPileup(fixData.output_dir+"debug/truth.paf",len(fixData.seq))#get SNP position ATCG array
    
    return misAry,posData_ary   
    
    
 
-def dlHomoFile(fixData:FixSNP,fileName):
-   if(os.path.exists('Homo') == False):
-        os.mkdir('Homo')
-   if(os.path.exists('Homo/'+fileName) == False):
-        os.mkdir('Homo/'+fileName)
-   ncbi_id =  mlp.mash_select_closely_related(fixData.sketch_path,False,10,fixData.output_dir,fixData.mash_threshold,fixData.dl_contig_nums,fixData.draft_genome_file,fixData.contig_id)
+def dlHomoFile(fixData:FixSNP):
+   if not os.path.isdir(fixData.output_dir+"debug"):
+       os.makedirs(fixData.output_dir+"debug")
+       
+   ncbi_id =  mlp.mash_select_closely_related(fixData.sketch_path,False,fixData.thread,fixData.output_dir+"debug",fixData.mash_threshold,fixData.dl_contig_nums,fixData.draft_genome_file,fixData.contig_id)
    url_list =  dl.parser_url(ncbi_id)
-   dl_path = dl.download("Homo/"+fileName,ncbi_id,url_list,fixData.draft_genome_file,99,5)
+   dl_path = dl.download(fixData.output_dir+"debug",ncbi_id,url_list,fixData.draft_genome_file,99,5)
 
 
 
@@ -347,7 +376,7 @@ def fixGem(fasta,posAry):
   return fasta
 
 
-def fixProcess(fixAry,S_arr,fixData,fileName,out_dir):        #fix the draft
+def fixProcess(fixAry,S_arr,fixData,fileName):        #fix the draft
     if(len(fixAry)>1):
      #fix genome
      fixSeq = fixGem(fixData.seq,fixAry)
@@ -357,9 +386,9 @@ def fixProcess(fixAry,S_arr,fixData,fileName,out_dir):        #fix the draft
          Seq(fixSeq),
          id=fixData.contig_id
      )
-     if(os.path.exists(out_dir) == False):
-        os.mkdir(out_dir)
-     contig_name, contig_output_dir=write_for_new_fasta(record,out_dir,fileName+"_modpolished")
+     if(os.path.exists(fixData.output_dir) == False):
+        os.mkdir(fixData.output_dir)
+     contig_name, contig_output_dir=write_for_new_fasta(record,fixData.output_dir,fileName+"_modpolished")
     return contig_output_dir
 
 def MismatchPileup(file_name, genome_size):

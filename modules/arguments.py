@@ -228,6 +228,30 @@ def add_modpolish_arguments(parser):
         default = "",
         help = "special pattern"
     )
- 
+    parser.add_argument(
+        "-d",
+        "--debug",
+        required=False,
+        action = "store_false",
+        help="Keep the information . [no]"
+    )
+    parser.add_argument(
+        "-t",
+        "--threads",
+        type=int,
+        required=False,
+        default=16,
+        help="Number of threads to use. [1]"
+    )
+    parser.add_argument(
+        "-l",
+        "--sibilings_files",
+        type=str,
+        required=False,
+        nargs="+",
+        default="",
+        help="draft siblings"
+    )
+    
     
     

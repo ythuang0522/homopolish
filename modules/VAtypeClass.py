@@ -4,7 +4,7 @@ class FixSNP():
         self._reads_file = ""
         self._sibilings = ""
         self._sketch_path = ""
-        self._output_dir = "Homo/"
+        self._output_dir = ""
         self._mash_threshold = 0.95
         self.dl_contig_nums = 20
         self._genome_file = ""
@@ -18,6 +18,18 @@ class FixSNP():
         self._getErrorPosCSV = False
         self._spPattern = ""
         self._bam_file = ""
+        self._thread = 16
+       
+        
+        
+    @property
+    def thread(self):
+        return self._thread
+
+    @thread.setter
+    def thread(self, value):
+        self._thread = value
+        
     @property
     def seq(self):
         return self._seq
@@ -58,11 +70,11 @@ class FixSNP():
         
 #   sibilings:draft_gem的 sibilings          
     @property
-    def sibilings(self):
+    def sib_files(self):
         return self._sibilings
 
-    @sibilings.setter
-    def sibilings(self, value):
+    @sib_files.setter
+    def sib_files(self, value):
         self._sibilings = value
        
         
