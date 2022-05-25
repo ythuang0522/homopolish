@@ -119,24 +119,28 @@ Run ```python3 homopolish.py modpolish --help``` to view all the options:
 usage: python3 homopolish.py modpolish -a ASSEMBLY -s SKETCH_PATH
                                        [ -q FASTQ | -b BAM ]
                                        (-o OUTPUT_DIR)
-                                       (-p SPECAIL_PATTERN) 
+                                       (-p SPECAIL_PATTERN)
+                                       (-t THREADS) 
                                        (-l LOCAL_DB_PATH)                         
                         
 optional arguments:
   -h, --help            show this help message and exit
 
-  -a ASSEMBLY,    --Draft genome file path
+  -a ASSEMBLY,     --Draft genome file path
                         [REQUIRED] Path to a assembly genome.
-  -s SKETCH_PATH, --sketch_path SKETCH_PATH
+  -s SKETCH_PATH,  --sketch_path SKETCH_PATH
                         Path to a mash sketch file.
                         Genus name
                         Path to your local DB (ex: cat closely-related_genomes1.fasta closely-related_genomes2.fasta> DB.fasta)
-  -o OUTPUT_DIR,  --output_dir OUTPUT_DIR
+  -o OUTPUT_DIR,   --output_dir OUTPUT_DIR
                         Path to the output directory. [output]
 
   -q FASTQ,             fastq File
 
-  -b BAM,         --bam  Path to a bam file  
+  -b BAM,          --bam  Path to a bam file 
+
+  -t THREADS,      --threads THREADS
+                        Number of threads to use. [1] 
   
   -p SPECAIL_PATTERN,   string of supported  motif: CCAGC or GCAGC ...
   
