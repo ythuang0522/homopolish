@@ -84,7 +84,6 @@ def getPos(fixData,debug_mod):
 
     
     #Homogenomes array  
-    print('load Homo')     
     H_misAry,H_AllAry = getPileUpAry(fixData,fixData.output_dir+"debug",fixData.output_dir+"debug/All_homologous_sequences.fna.gz")   
     
     #Reads array   
@@ -202,8 +201,7 @@ def getSibVal(S_PosAry,S_percentRate):  # return Homogenome siblings pos value
       decision_Fix = True 
 
     if(decision_Fix):
-      Homo_ATCG = [Homo_A,Homo_T,Homo_C,Homo_G,Homo_Ins_Del] #是否連ins del判斷比較好? 
-      #Sib_ATCG = [Sib_A,Sib_T,Sib_C,Sib_G]        
+      Homo_ATCG = [Homo_A,Homo_T,Homo_C,Homo_G,Homo_Ins_Del] #是否連ins del判斷比較好?    
       pos =  Homo_ATCG.index(max(Homo_ATCG))  
       Homo_val = getATCG_pos_use(pos)
       if(pos == 0 and Homo_A == 0):
