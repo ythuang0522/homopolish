@@ -29,22 +29,24 @@ def computeAni(draft,db_txt,path):
     else:
         return
 
-def parseAni(db_txt,coverage,distance):
+def parseAni(db_txt,identity,diff_area):
     remove_file=[]
-    count = 0
+    file_count = 0
     with open(db_txt,'r') as f:
         
         for line in f:
-            count += 1
+            file_count += 1
             line = line.split()
             Ani = float(line[2])
             first = float(line[3])
             second = float(line[4])
             
-            if second - first > distance or Ani <= coverage:
+            if second - first > diff_area or Ani <= identity:
                 remove_file.append(line[1])
     
-    if count != len(remove_file):
+    # 1. remove file != empty  2.sibling file more than 1
+    if ((file_count != len(remove_file)) and (file_count - len(remove_file)!=1)):
+        print(len(remove_file))
         for i in remove_file:
             os.remove(i)
         

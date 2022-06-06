@@ -40,7 +40,7 @@ def fixFlagFn(fixData,fixPosAry,totalCovergae,fileName):
 
 def getSibFile(fixData):
    file_path = ""
-   
+   flag = True
    if not os.path.isdir(fixData.output_dir+"debug"):
        os.makedirs(fixData.output_dir+"debug")
    
@@ -56,8 +56,9 @@ def getSibFile(fixData):
    
    else:
     #download siblings homogenome file from NCBI
-    dlHomoFile(fixData)  
-
+    flag = dlHomoFile(fixData)  
+   
+   return flag
 
 def getPos(fixData,debug_mod):
     if(fixData.output_dir[-1] != "/"):
@@ -67,20 +68,30 @@ def getPos(fixData,debug_mod):
     fixData,flag = getGenLength(fixData)
     fileName = fixData.draft_genome_file.split('/')[-1].split('.')[0]
     
+    timestr = time.strftime("[%Y/%m/%d %H:%M]")
+    sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO:star modpolish with sequence length: "+ str(len(fixData.seq))  + "\n" + TextColor.END)
+    
+    #download homogenome file
+    timestr = time.strftime("[%Y/%m/%d %H:%M]")
+    sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO:star download Homo sibling files"+ "\n" + TextColor.END)
     
     
     
     #download homogenome file
-    getSibFile(fixData)
-    #dlHomoFile(fixData)  
+    sib_flag = getSibFile(fixData)
+    if(sib_flag == False):
+      return
+
     
     #Homogenomes array  
-    print('load Homo')    
-    #H_misAry,H_AllAry = getPileUpAry(fixData,"Homo/"+fileName,"Homo/"+fileName+"/All_homologous_sequences.fna.gz")   
+    print('load Homo')     
     H_misAry,H_AllAry = getPileUpAry(fixData,fixData.output_dir+"debug",fixData.output_dir+"debug/All_homologous_sequences.fna.gz")   
     
     #Reads array   
-    print('load Read')
+    timestr = time.strftime("[%Y/%m/%d %H:%M]")
+    sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO:star get Reads File data"+ "\n" + TextColor.END)
+    
+    
     if(fixData.bamFile != ""):
         R_misAry_bam,R_AllAry_bam,totalCovergae = MismatchPileup_read_bam(fixData.bamFile,len(fixData.seq))
     else:
@@ -150,13 +161,23 @@ def getPileUpAry(fixData:FixSNP,pafPath,asemberlyFile):
    
 
 def dlHomoFile(fixData:FixSNP):
+   fixFlag = True
+   
    if not os.path.isdir(fixData.output_dir+"debug"):
        os.makedirs(fixData.output_dir+"debug")
-       
+      
    ncbi_id =  mlp.mash_select_closely_related(fixData.sketch_path,False,fixData.thread,fixData.output_dir+"debug",fixData.mash_threshold,fixData.dl_contig_nums,fixData.draft_genome_file,fixData.contig_id)
+   
+   
+   if(len(ncbi_id)<5):
+    timestr = time.strftime("[%Y/%m/%d %H:%M]")
+    sys.stderr.write(TextColor.PURPLE + str(timestr) + "Closely-related genomes less than 5, not to modpolish...\n" + TextColor.END) 
+    fixFlag = False
+   
    url_list =  dl.parser_url(ncbi_id)
    dl_path = dl.download(fixData.output_dir+"debug",ncbi_id,url_list,fixData.draft_genome_file,99,5)
 
+   return fixFlag
 
 
 
@@ -392,6 +413,11 @@ def fixProcess(fixAry,S_arr,fixData,fileName):        #fix the draft
     return contig_output_dir
 
 def MismatchPileup(file_name, genome_size):
+
+    timestr = time.strftime("[%Y/%m/%d %H:%M]")
+    sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO:star Homo files pileup with sequence length: "+ str(genome_size)  + "\n" + TextColor.END)
+     
+
     LONG_DELETION_LENGTH = 50
     misAry = np.array([np.array([0,np.zeros(8)])for i in range(genome_size)])
     ins_len = 7
@@ -411,9 +437,8 @@ def MismatchPileup(file_name, genome_size):
                longdel_count = 0
                longdel_status = 0
                strain = line[4]#取正反股
-               if(start_pos < genome_size):                 
-                for i in cigar: # ex. =ATC*c
-                
+               #if(start_pos < genome_size):              
+               for i in cigar: # ex. =ATC*c                 
                     if i == 'A' or i == 'a':  # A:0, T:1, C:2, G:3
                         base = 0                     	
                     elif i == 'T' or i == 't':
