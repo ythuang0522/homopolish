@@ -46,7 +46,6 @@ def parseAni(db_txt,identity,diff_area):
     
     # 1. remove file != empty  2.sibling file more than 1
     if ((file_count != len(remove_file)) and (file_count - len(remove_file)!=1)):
-        print(len(remove_file))
         for i in remove_file:
             os.remove(i)
         
