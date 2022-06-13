@@ -19,8 +19,19 @@ class FixSNP():
         self._spPattern = ""
         self._bam_file = ""
         self._thread = 16
+        self._gen_description = ""
        
-        
+       
+
+
+    @property
+    def gen_desc(self):
+        return self._gen_description
+
+    @gen_desc.setter
+    def gen_desc(self, value):
+        self._gen_description = value
+               
         
     @property
     def thread(self):

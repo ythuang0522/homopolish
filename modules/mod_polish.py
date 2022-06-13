@@ -65,7 +65,13 @@ def getPos(fixData,debug_mod):
        fixData.output_dir = fixData.output_dir+"/"
     
     
-    fixData,flag = getGenLength(fixData)
+    fixData,flag,plasmidFilePath = getGenLength(fixData)   
+    if(flag == False):
+      timestr = time.strftime("[%Y/%m/%d %H:%M]")
+      sys.stderr.write(TextColor.PURPLE + str(timestr) + " INFO:fasta genome length too short"+ "\n" + TextColor.END)
+      return
+      
+      
     fileName = fixData.draft_genome_file.split('/')[-1].split('.')[0]
     
     timestr = time.strftime("[%Y/%m/%d %H:%M]")
@@ -81,7 +87,7 @@ def getPos(fixData,debug_mod):
     sib_flag = getSibFile(fixData)
     if(sib_flag == False):
       return
-
+    
     
     #Homogenomes array  
     H_misAry,H_AllAry = getPileUpAry(fixData,fixData.output_dir+"debug",fixData.output_dir+"debug/All_homologous_sequences.fna.gz")   
@@ -109,31 +115,64 @@ def getPos(fixData,debug_mod):
     #need to fix?
     fixFlag = fixFlagFn(fixData,fixary,totalCovergae,fileName)
     if(fixFlag == False):
-      print("Methyl position less than threshold!")
+      timestr = time.strftime("[%Y/%m/%d %H:%M]")
+      sys.stderr.write(TextColor.PURPLE + str(timestr) + " INFO:Methyl position less than threshold!"+ "\n" + TextColor.END)
       return
     
 
-    contig_output_dir = fixProcess(fixary,H_AllAry,fixData,fileName)
-    CSV.getFixPosCSV(fileName,fixary,contig_output_dir)
+    modpolish_filePath= fixProcess(fixary,H_AllAry,fixData,fileName)
+    
+    file_path = catAllfasta(fixData,plasmidFilePath,modpolish_filePath)
+    CSV.getFixPosCSV(fileName,fixary,file_path)
     
     
     if(debug_mod):
      shutil.rmtree(fixData.output_dir+"debug")
+ 
+def catAllfasta(fixData,plasmidFilePath,genFilePath):
+    timestr =time.strftime("[%Y/%m/%d %H:%M]")
+    filePath=fixData.output_dir+fixData.contig_id+"/"
+    if(os.path.exists(filePath) == False):
+      os.mkdir(filePath)
+      
+    outPutFilePath = filePath+fixData.contig_id+"_modpolish.fa"
+    os.system('cat {} > {}'.format(plasmidFilePath+" "+genFilePath,outPutFilePath)) 
+    
+    # create a directory for each contig
+    contig_output_dir = mlp.make_output_dir("contig", fixData.output_dir, fixData.contig_id)
+    sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO: output dir: " + contig_output_dir + "\n" + TextColor.END)
+    # new fasta for each contig
+    return filePath
 
-     
-def del_file(path):
-   for file in glob.glob(fixData.rmFilePath+"/*"):
-     if(os.path.isfile(file)):
-        os.remove(file)
+
+def plasmidFile(fixData,contig):
+   record = SeqRecord(
+         contig.seq,
+         id=contig.name,
+         description = contig.description
+   )
+   if(os.path.exists(fixData.output_dir) == False):
+        os.mkdir(fixData.output_dir)
+   if(os.path.exists(fixData.output_dir+'debug') == False):
+        os.mkdir(fixData.output_dir+'debug')
+   contig_name = fixData.output_dir + 'debug/' + contig.name + '_plasmid.fasta'
+   SeqIO.write(record, contig_name, "fasta")
+   return contig_name
+   
 
 def getGenLength(fixData):
-  flag = True
+  flag = False
+  plasmidFilePath = ""
   for contig in SeqIO.parse(fixData.draft_genome_file, 'fasta'):
     if(len(contig.seq)>fixData.genomeLen):
       fixData.contig_id = contig.name#get fa Contig_id
       fixData.seq = contig.seq#get fa seq
-      flag = False      
-  return fixData,flag
+      fixData.gen_desc = contig.description
+      flag = True   
+    else:
+      plasmidFilePath =plasmidFilePath+" "+ plasmidFile(fixData,contig)  
+  
+  return fixData,flag,plasmidFilePath
 
 def getBamPileUp(fixData:FixSNP,fileName,threads,fasta,fastq):
     if not os.path.isdir(fixData.output_dir+"debug"):
@@ -373,15 +412,10 @@ def getATCG_pos_use(index:int):
    	return ""
 
 def write_for_new_fasta(contig, output_dir_debug,fileName):
-    timestr = time.strftime("[%Y/%m/%d %H:%M]")
     
-    # create a directory for each contig
-    contig_output_dir = mlp.make_output_dir("contig", output_dir_debug, contig.id)
-    sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO: output dir: " + contig_output_dir + "\n" + TextColor.END)
-    # new fasta for each contig
-    contig_name = contig_output_dir + '/' + fileName + '.fasta'
+    contig_name = output_dir_debug + '/' + fileName + '.fasta'
     SeqIO.write(contig, contig_name, "fasta")
-    return contig_name, contig_output_dir
+    return contig_name
 
 def fixGem(fasta,posAry):
   for ary in  posAry:
@@ -403,12 +437,11 @@ def fixProcess(fixAry,S_arr,fixData,fileName):        #fix the draft
      #save fasta
      record = SeqRecord(
          Seq(fixSeq),
-         id=fixData.contig_id
+         id=fixData.contig_id,
+         description = fixData.gen_desc
      )
-     if(os.path.exists(fixData.output_dir) == False):
-        os.mkdir(fixData.output_dir)
-     contig_name, contig_output_dir=write_for_new_fasta(record,fixData.output_dir,fileName+"_modpolished")
-    return contig_output_dir
+    contig_output_filePath=write_for_new_fasta(record,fixData.output_dir+"debug",fileName+"_Gen_modpolish")
+    return contig_output_filePath
 
 def MismatchPileup(file_name, genome_size):
 
