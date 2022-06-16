@@ -12,7 +12,6 @@ class FixSNP():
         self._rmFilePath = "Homo"   
         self._fix_genome_file = ""
         self._true_genome_file = ""
-        self._norGenLen = 1000000
         self._getFixPosCSV = True
         self._getMissPosCSV = False
         self._getErrorPosCSV = False
@@ -171,17 +170,7 @@ class FixSNP():
     @true_genome_file.setter
     def true_genome_file(self, value):
         self._true_genome_file = value   
-        
-    #genome Length
-    @property
-    def genomeLen(self):
-        return self._norGenLen
-
-    @genomeLen.setter
-    def genomeLen(self, value):
-        self._norGenLen = value  
-        
-        
+                
     
     #flag of fixPosCSV
     @property

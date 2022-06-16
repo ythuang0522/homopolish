@@ -24,6 +24,27 @@ from modules.VAtypeClass import FixSNP
 
 
 
+def starModpolsh(fixData,debug_mod):
+  modpolish_filePath = ""	
+  for contig in SeqIO.parse(fixData.draft_genome_file, 'fasta'):
+      fixData.contig_id = contig.name#get fa Contig_id
+      fixData.seq = contig.seq#get fa seq
+      fixData.gen_desc = contig.description
+      filePath = getPos(fixData,debug_mod)
+      if(filePath != ""):
+        modpolish_filePath = modpolish_filePath +" "+getPos(fixData,debug_mod)
+  
+  if(modpolish_filePath == ""):
+     timestr = time.strftime("[%Y/%m/%d %H:%M]")
+     sys.stderr.write(TextColor.PURPLE + str(timestr) + " INFO:Methyl position less than threshold!"+ "\n" + TextColor.END)
+     return
+     
+  catAllfasta(fixData,modpolish_filePath)
+  
+  if(debug_mod):
+     shutil.rmtree(fixData.output_dir+"debug")
+
+
 def fixFlagFn(fixData,fixPosAry,totalCovergae,fileName):
    #use expected value: (fixPos/coverage)/length
    num_fixPos = len(fixPosAry)
@@ -36,6 +57,7 @@ def fixFlagFn(fixData,fixPosAry,totalCovergae,fileName):
      fixFlag = False
      
    return fixFlag
+
 
 
 def getSibFile(fixData):
@@ -60,119 +82,71 @@ def getSibFile(fixData):
    
    return flag
 
+
 def getPos(fixData,debug_mod):
     if(fixData.output_dir[-1] != "/"):
        fixData.output_dir = fixData.output_dir+"/"
-    
-    
-    fixData,flag,plasmidFilePath = getGenLength(fixData)   
-    if(flag == False):
-      timestr = time.strftime("[%Y/%m/%d %H:%M]")
-      sys.stderr.write(TextColor.PURPLE + str(timestr) + " INFO:fasta genome length too short"+ "\n" + TextColor.END)
-      return
-      
-      
+
     fileName = fixData.draft_genome_file.split('/')[-1].split('.')[0]
-    
     timestr = time.strftime("[%Y/%m/%d %H:%M]")
     sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO:star modpolish with sequence length: "+ str(len(fixData.seq))  + "\n" + TextColor.END)
     
-    #download homogenome file
+    #download siblings files
     timestr = time.strftime("[%Y/%m/%d %H:%M]")
     sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO:star download Homo sibling files"+ "\n" + TextColor.END)
     
-    
-    
-    #download homogenome file
     sib_flag = getSibFile(fixData)
     if(sib_flag == False):
-      return
-    
-    
-    #Homogenomes array  
+      return ""
+    #siblings array  
     H_misAry,H_AllAry = getPileUpAry(fixData,fixData.output_dir+"debug",fixData.output_dir+"debug/All_homologous_sequences.fna.gz")   
-    
+   
     #Reads array   
     timestr = time.strftime("[%Y/%m/%d %H:%M]")
     sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO:star get Reads File data"+ "\n" + TextColor.END)
-    
-    
+  
     if(fixData.bamFile != ""):
         R_misAry_bam,R_AllAry_bam,totalCovergae = MismatchPileup_read_bam(fixData.bamFile,len(fixData.seq))
     else:
         bamFile = getBamPileUp(fixData,fileName,fixData.thread,fixData.draft_genome_file,fixData.reads_file)
         R_misAry_bam,R_AllAry_bam,totalCovergae = MismatchPileup_read_bam(bamFile,len(fixData.seq))
-    
 
-
-    
+    #use special pattern
     if(fixData.spPattern == ""):
         fixary = getMisPosVal(R_misAry_bam,R_AllAry_bam,H_AllAry,fixData.seq) 
     else:
         fixary = fix_pos_homo_read_pattern(fixData,H_AllAry,R_misAry_bam,R_AllAry_bam,fixData.spPattern)
-   
     
     #need to fix?
     fixFlag = fixFlagFn(fixData,fixary,totalCovergae,fileName)
     if(fixFlag == False):
-      timestr = time.strftime("[%Y/%m/%d %H:%M]")
-      sys.stderr.write(TextColor.PURPLE + str(timestr) + " INFO:Methyl position less than threshold!"+ "\n" + TextColor.END)
-      return
-    
+      return ""
 
+    #star fix
     modpolish_filePath= fixProcess(fixary,H_AllAry,fixData,fileName)
-    
-    file_path = catAllfasta(fixData,plasmidFilePath,modpolish_filePath)
-    CSV.getFixPosCSV(fileName,fixary,file_path)
-    
-    
-    if(debug_mod):
-     shutil.rmtree(fixData.output_dir+"debug")
- 
-def catAllfasta(fixData,plasmidFilePath,genFilePath):
-    timestr =time.strftime("[%Y/%m/%d %H:%M]")
-    filePath=fixData.output_dir+fixData.contig_id+"/"
-    if(os.path.exists(filePath) == False):
-      os.mkdir(filePath)
-      
-    outPutFilePath = filePath+fixData.contig_id+"_modpolish.fa"
-    os.system('cat {} > {}'.format(plasmidFilePath+" "+genFilePath,outPutFilePath)) 
-    
-    # create a directory for each contig
-    contig_output_dir = mlp.make_output_dir("contig", fixData.output_dir, fixData.contig_id)
-    sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO: output dir: " + contig_output_dir + "\n" + TextColor.END)
-    # new fasta for each contig
-    return filePath
+    CSV.getFixPosCSV(fixData.contig_id,fixary,fixData.output_dir)
+
+    return modpolish_filePath
 
 
-def plasmidFile(fixData,contig):
-   record = SeqRecord(
-         contig.seq,
-         id=contig.name,
-         description = contig.description
-   )
-   if(os.path.exists(fixData.output_dir) == False):
-        os.mkdir(fixData.output_dir)
-   if(os.path.exists(fixData.output_dir+'debug') == False):
-        os.mkdir(fixData.output_dir+'debug')
-   contig_name = fixData.output_dir + 'debug/' + contig.name + '_plasmid.fasta'
-   SeqIO.write(record, contig_name, "fasta")
-   return contig_name
-   
 
-def getGenLength(fixData):
-  flag = False
-  plasmidFilePath = ""
-  for contig in SeqIO.parse(fixData.draft_genome_file, 'fasta'):
-    if(len(contig.seq)>fixData.genomeLen):
-      fixData.contig_id = contig.name#get fa Contig_id
-      fixData.seq = contig.seq#get fa seq
-      fixData.gen_desc = contig.description
-      flag = True   
-    else:
-      plasmidFilePath =plasmidFilePath+" "+ plasmidFile(fixData,contig)  
   
-  return fixData,flag,plasmidFilePath
+
+
+def catAllfasta(fixData,genFilePath):
+    timestr =time.strftime("[%Y/%m/%d %H:%M]")
+
+    #fileName   
+    fileName = fixData.draft_genome_file.split('/')[-1].split('.')[0]
+    # create a directory for each contig
+    contig_output_dir = mlp.make_output_dir("contig", fixData.output_dir, fileName)
+    outPutFilePath = contig_output_dir+"/"+fileName+"_modpolish.fa"
+    os.system('cat {} > {}'.format(genFilePath,outPutFilePath)) 
+    
+    sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO: output dir: " + contig_output_dir + "\n" + TextColor.END)
+
+
+
 
 def getBamPileUp(fixData:FixSNP,fileName,threads,fasta,fastq):
     if not os.path.isdir(fixData.output_dir+"debug"):
@@ -440,7 +414,7 @@ def fixProcess(fixAry,S_arr,fixData,fileName):        #fix the draft
          id=fixData.contig_id,
          description = fixData.gen_desc
      )
-    contig_output_filePath=write_for_new_fasta(record,fixData.output_dir+"debug",fileName+"_Gen_modpolish")
+    contig_output_filePath=write_for_new_fasta(record,fixData.output_dir+"debug",fixData.contig_id+"_modpolish")
     return contig_output_filePath
 
 def MismatchPileup(file_name, genome_size):
@@ -462,14 +436,17 @@ def MismatchPileup(file_name, genome_size):
             t_start = line[7] #reference
            
             if line[11] != '0': #mapping quality != 0
-               cigar = line[-1]
-               start_pos = int(t_start)                
-               flag = 0
-               longdel_count = 0
-               longdel_status = 0
-               strain = line[4]#取正反股
-               #if(start_pos < genome_size):              
-               for i in cigar: # ex. =ATC*c                 
+              cigar = line[-1]
+              start_pos = int(t_start)                
+              flag = 0
+              longdel_count = 0
+              longdel_status = 0
+              strain = line[4]#取正反股
+              if(start_pos < genome_size):              
+               for i in cigar: # ex. =ATC*c 
+                    if(start_pos>=genome_size):
+                     break
+
                     if i == 'A' or i == 'a':  # A:0, T:1, C:2, G:3
                         base = 0                     	
                     elif i == 'T' or i == 't':
@@ -492,6 +469,7 @@ def MismatchPileup(file_name, genome_size):
                         longdel_status = 0
                     
                     elif flag == 1:
+                       
                         longdel_count = 0                                        
                         coverage[start_pos] += 1
     
@@ -582,13 +560,15 @@ def MismatchPileup_read_bam(bam,genome_size):
         longdel_count = 0
         longdel_status = 0
 
-
+       
         if(each_read.is_reverse == True):
             reverse = 4
         else:
             reverse = 0
         for i in cigar: # ex. =ATC*c
-            #print('in_cigar')
+            if(start_pos>=genome_size):
+               break
+
             if i == 'A' or i == 'a':  # A:0, T:1, C:2, G:3
                 base = 0
             elif i == 'T' or i == 't':
@@ -674,5 +654,6 @@ def MismatchPileup_read_bam(bam,genome_size):
                     totalCovergae +=1
                 start_pos+=1    
     return misAry,arr,totalCovergae
+
 
 

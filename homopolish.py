@@ -7,7 +7,7 @@ from modules.train_interface import train_model
 import os
 from os import path
 from modules.VAtypeClass import FixSNP
-from modules.mod_polish import getPos
+import modules.mod_polish as mp
 
 
 def main():
@@ -72,9 +72,9 @@ def main():
         fixData.thread = FLAGS.threads 
         fixData.output_dir = FLAGS.output_dir  
         
-        fixData.sib_files = FLAGS.sibilings_files  
-        print(fixData.sib_files )        
-        getPos(fixData,FLAGS.debug)
+        fixData.sib_files = FLAGS.sibilings_files      
+        #getPos(fixData,FLAGS.debug)
+        mp.starModpolsh(fixData,FLAGS.debug)
     
     elif FLAGS.sub_command == 'modpolish_posData':
         if(FLAGS.fastq == "" and FLAGS.bam == ""):
