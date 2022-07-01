@@ -22,24 +22,41 @@ from modules import ani
 from modules.VAtypeClass import FixSNP
 
 
+#save fasta when modpolish not work
+def saveNofixSeq(fixData):
+
+  record = SeqRecord(
+         fixData.seq,
+         id=fixData.contig_id,
+         description = fixData.gen_desc
+  )
+  contig_output_filePath=write_for_new_fasta(record,fixData.output_dir+"debug",fixData.contig_id+"_modpolish")
+  return contig_output_filePath
 
 
 def starModpolsh(fixData,debug_mod):
-  modpolish_filePath = ""	
+  modpolish_filePath = ""
+  contig_fix_ary = []
+  fileName = fixData.draft_genome_file.split('/')[-1].split('.')[0]	
+  
   for contig in SeqIO.parse(fixData.draft_genome_file, 'fasta'):
       fixData.contig_id = contig.name#get fa Contig_id
       fixData.seq = contig.seq#get fa seq
       fixData.gen_desc = contig.description
-      filePath = getPos(fixData,debug_mod)
+      filePath,mod_fix_flag = getPos(fixData,debug_mod)
+      contig_fix_ary.append(mod_fix_flag)
+      
       if(filePath != ""):
-        modpolish_filePath = modpolish_filePath +" "+getPos(fixData,debug_mod)
+        modpolish_filePath = modpolish_filePath +" "+filePath
   
-  if(modpolish_filePath == ""):
+  #check each contig without modpolish
+  if(not any(contig_fix_ary)):
      timestr = time.strftime("[%Y/%m/%d %H:%M]")
-     sys.stderr.write(TextColor.PURPLE + str(timestr) + " INFO:Methyl position less than threshold!"+ "\n" + TextColor.END)
-     return
+     sys.stderr.write(TextColor.PURPLE + str(timestr) + " INFO:Methyl position less than threshold!"+ "\n" + TextColor.END)  
+  else:
+     fileName = fileName+"_modpolish"
      
-  catAllfasta(fixData,modpolish_filePath)
+  catAllfasta(fixData,modpolish_filePath,fileName)
   
   if(debug_mod):
      shutil.rmtree(fixData.output_dir+"debug")
@@ -97,7 +114,7 @@ def getPos(fixData,debug_mod):
     
     sib_flag = getSibFile(fixData)
     if(sib_flag == False):
-      return ""
+      return saveNofixSeq(fixData),True
     #siblings array  
     H_misAry,H_AllAry = getPileUpAry(fixData,fixData.output_dir+"debug",fixData.output_dir+"debug/All_homologous_sequences.fna.gz")   
    
@@ -120,27 +137,26 @@ def getPos(fixData,debug_mod):
     #need to fix?
     fixFlag = fixFlagFn(fixData,fixary,totalCovergae,fileName)
     if(fixFlag == False):
-      return ""
+      return saveNofixSeq(fixData),False
 
     #star fix
     modpolish_filePath= fixProcess(fixary,H_AllAry,fixData,fileName)
     CSV.getFixPosCSV(fixData.contig_id,fixary,fixData.output_dir)
 
-    return modpolish_filePath
+    return modpolish_filePath,True
 
 
 
   
 
 
-def catAllfasta(fixData,genFilePath):
+def catAllfasta(fixData,genFilePath,fileName):
     timestr =time.strftime("[%Y/%m/%d %H:%M]")
 
-    #fileName   
-    fileName = fixData.draft_genome_file.split('/')[-1].split('.')[0]
+   
     # create a directory for each contig
     contig_output_dir = mlp.make_output_dir("contig", fixData.output_dir, fileName)
-    outPutFilePath = contig_output_dir+"/"+fileName+"_modpolish.fa"
+    outPutFilePath = contig_output_dir+"/"+fileName+".fa"
     os.system('cat {} > {}'.format(genFilePath,outPutFilePath)) 
     
     sys.stderr.write(TextColor.GREEN + str(timestr) + " INFO: output dir: " + contig_output_dir + "\n" + TextColor.END)
