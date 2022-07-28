@@ -24,25 +24,55 @@ from modules.VAtypeClass import FixSNP
 
 #save fasta when modpolish not work
 def saveNofixSeq(fixData):
-
+  filePath = fixData.output_dir+"debug/"+fixData.contig_id
   record = SeqRecord(
          fixData.seq,
          id=fixData.contig_id,
          description = fixData.gen_desc
   )
-  contig_output_filePath=write_for_new_fasta(record,fixData.output_dir+"debug",fixData.contig_id+"_modpolish")
+  contig_output_filePath=write_for_new_fasta(record,filePath,fixData.contig_id+"_modpolish")
   return contig_output_filePath
 
+def saveDraftContig(fixData):
+  filePath = fixData.output_dir+"debug/"+fixData.contig_id
+  record = SeqRecord(
+    fixData.seq,
+    id=fixData.contig_id,
+    description = fixData.gen_desc
+  )
+  contig_output_filePath=write_for_new_fasta(record,filePath,fixData.contig_id+"_contig")
+  return contig_output_filePath
 
 def starModpolsh(fixData,debug_mod):
   modpolish_filePath = ""
   contig_fix_ary = []
   fileName = fixData.draft_genome_file.split('/')[-1].split('.')[0]	
   
+ 
+
+  #file path end must exist "/"
+  if(fixData.output_dir[-1] != "/"):
+       fixData.output_dir = fixData.output_dir+"/"
+
+
+  #create filePath
+  if not os.path.isdir(fixData.output_dir+"debug"):
+       os.makedirs(fixData.output_dir+"debug")
+  
+  
+
   for contig in SeqIO.parse(fixData.draft_genome_file, 'fasta'):
       fixData.contig_id = contig.name#get fa Contig_id
       fixData.seq = contig.seq#get fa seq
       fixData.gen_desc = contig.description
+      
+      #create each contig debug filePath
+      if not os.path.isdir(fixData.output_dir+"debug/"+ fixData.contig_id):
+        os.makedirs(fixData.output_dir+"debug/"+ fixData.contig_id)
+
+      #target contig 
+      fixData.contig_path = saveDraftContig(fixData)
+
       filePath,mod_fix_flag = getPos(fixData,debug_mod)
       contig_fix_ary.append(mod_fix_flag)
       
@@ -63,34 +93,44 @@ def starModpolsh(fixData,debug_mod):
 
 
 def fixFlagFn(fixData,fixPosAry,totalCovergae,fileName):
+   filePath = fixData.output_dir+"debug/"+fixData.contig_id
    #use expected value: (fixPos/coverage)/length
    num_fixPos = len(fixPosAry)
    genLen = len(fixData.seq)   
    fixFlag = True
    average_cov  = totalCovergae/genLen
-     
    fix_expected_val = (num_fixPos/average_cov)/genLen
+   
+   #saveFn csv
+   Fndata = []
+   Fndata.append([average_cov,genLen,num_fixPos,fix_expected_val])
+
+   df = pds.DataFrame(Fndata)
+   df = df.reset_index()
+   if(len(Fndata)!=0):
+     df.columns =["","avg_cov","genLen","num_fixPos","fix_expected_val"]
+   df.to_csv(filePath+"/"+fileName+"_fnFlag.csv",encoding="ascii",index=False)
+   
+   
+   
    if(fix_expected_val<0.000001):
      fixFlag = False
      
-   return fixFlag
+   return True
 
 
 
 def getSibFile(fixData):
    file_path = ""
    flag = True
-   if not os.path.isdir(fixData.output_dir+"debug"):
-       os.makedirs(fixData.output_dir+"debug")
-   
-   
+
    #use siblings from user side
    if(fixData.sib_files != ""):
      for sibFile in fixData.sib_files:
         file_path = file_path +" "+sibFile
      
      print(file_path)
-     db_path = fixData.output_dir+"debug/All_homologous_sequences.fna.gz"
+     db_path = fixData.output_dir+"debug/"+fixData.contig_id+"/All_homologous_sequences.fna.gz"
      os.system('cat {} > {}'.format(file_path, db_path))
    
    else:
@@ -101,8 +141,7 @@ def getSibFile(fixData):
 
 
 def getPos(fixData,debug_mod):
-    if(fixData.output_dir[-1] != "/"):
-       fixData.output_dir = fixData.output_dir+"/"
+    
 
     fileName = fixData.draft_genome_file.split('/')[-1].split('.')[0]
     timestr = time.strftime("[%Y/%m/%d %H:%M]")
@@ -116,7 +155,8 @@ def getPos(fixData,debug_mod):
     if(sib_flag == False):
       return saveNofixSeq(fixData),True
     #siblings array  
-    H_misAry,H_AllAry = getPileUpAry(fixData,fixData.output_dir+"debug",fixData.output_dir+"debug/All_homologous_sequences.fna.gz")   
+    sibPath = fixData.output_dir+"debug/"+fixData.contig_id
+    H_misAry,H_AllAry = getPileUpAry(fixData,sibPath,sibPath+"/All_homologous_sequences.fna.gz")   
    
     #Reads array   
     timestr = time.strftime("[%Y/%m/%d %H:%M]")
@@ -125,7 +165,7 @@ def getPos(fixData,debug_mod):
     if(fixData.bamFile != ""):
         R_misAry_bam,R_AllAry_bam,totalCovergae = MismatchPileup_read_bam(fixData.bamFile,len(fixData.seq))
     else:
-        bamFile = getBamPileUp(fixData,fileName,fixData.thread,fixData.draft_genome_file,fixData.reads_file)
+        bamFile = getBamPileUp(fixData,fileName,fixData.thread,fixData.contig_path,fixData.reads_file)
         R_misAry_bam,R_AllAry_bam,totalCovergae = MismatchPileup_read_bam(bamFile,len(fixData.seq))
 
     #use special pattern
@@ -151,11 +191,10 @@ def getPos(fixData,debug_mod):
 
 
 def catAllfasta(fixData,genFilePath,fileName):
+    subFilePath = fixData.draft_genome_file.split('/')[-1].split('.')[0]
     timestr =time.strftime("[%Y/%m/%d %H:%M]")
-
-   
     # create a directory for each contig
-    contig_output_dir = mlp.make_output_dir("contig", fixData.output_dir, fileName)
+    contig_output_dir = mlp.make_output_dir("contig", fixData.output_dir, subFilePath)
     outPutFilePath = contig_output_dir+"/"+fileName+".fa"
     os.system('cat {} > {}'.format(genFilePath,outPutFilePath)) 
     
@@ -165,24 +204,19 @@ def catAllfasta(fixData,genFilePath,fileName):
 
 
 def getBamPileUp(fixData:FixSNP,fileName,threads,fasta,fastq):
-    if not os.path.isdir(fixData.output_dir+"debug"):
-       os.makedirs(fixData.output_dir+"debug")
-    
-    os.system('minimap2 -ax asm5 --cs=long -t {thread} {draft} {reference} > '.format(thread=threads, draft=fasta, reference=fastq) + fixData.output_dir+'debug/reads.sam')
-    os.system('samtools view -S -b '+fixData.output_dir+'debug/reads.sam > '+fixData.output_dir+'debug/reads.bam'.format(f=fileName))
-    os.system('samtools sort '+fixData.output_dir+'debug/reads.bam -o '+fixData.output_dir+'debug/reads_sorted.bam')
-    os.system('samtools index '+fixData.output_dir+'debug/reads_sorted.bam')
-    bam = fixData.output_dir+'debug/reads_sorted.bam'
+    filePath = fixData.output_dir+'debug/'+fixData.contig_id
+    os.system('minimap2 -ax asm5 --cs=long -t {thread} {draft} {reference} > '.format(thread=threads, draft=fasta, reference=fastq) + filePath+'/reads.sam')
+    os.system('samtools view -S -b '+filePath+'/reads.sam > '+filePath+'/reads.bam'.format(f=fileName))
+    os.system('samtools sort '+filePath+'/reads.bam -o '+filePath+'/reads_sorted.bam')
+    os.system('samtools index '+filePath+'/reads_sorted.bam')
+    bam = filePath+'/reads_sorted.bam'
     return bam
     
     
 def getPileUpAry(fixData:FixSNP,pafPath,asemberlyFile):
-
-   if not os.path.isdir(fixData.output_dir+"debug"):
-       os.makedirs(fixData.output_dir+"debug")
-       
-   ma.align(fixData.draft_genome_file,"asm5",fixData.thread,"",fixData.output_dir+"debug",asemberlyFile)
-   misAry,posData_ary = MismatchPileup(fixData.output_dir+"debug/truth.paf",len(fixData.seq))#get SNP position ATCG array
+   filePath = fixData.output_dir+'debug/'+fixData.contig_id
+   ma.align(fixData.contig_path,"asm5",fixData.thread,"",filePath,asemberlyFile)
+   misAry,posData_ary = MismatchPileup(filePath+"/truth.paf",len(fixData.seq))#get SNP position ATCG array
    
    return misAry,posData_ary   
    
@@ -190,11 +224,8 @@ def getPileUpAry(fixData:FixSNP,pafPath,asemberlyFile):
 
 def dlHomoFile(fixData:FixSNP):
    fixFlag = True
-   
-   if not os.path.isdir(fixData.output_dir+"debug"):
-       os.makedirs(fixData.output_dir+"debug")
-      
-   ncbi_id =  mlp.mash_select_closely_related(fixData.sketch_path,False,fixData.thread,fixData.output_dir+"debug",fixData.mash_threshold,fixData.dl_contig_nums,fixData.draft_genome_file,fixData.contig_id)
+   filePath = fixData.output_dir+'debug/'+fixData.contig_id
+   ncbi_id =  mlp.mash_select_closely_related(fixData.sketch_path,False,fixData.thread,filePath,fixData.mash_threshold,fixData.dl_contig_nums,fixData.contig_path,fixData.contig_id)
    
    
    if(len(ncbi_id)<5):
@@ -203,7 +234,7 @@ def dlHomoFile(fixData:FixSNP):
     fixFlag = False
    
    url_list =  dl.parser_url(ncbi_id)
-   dl_path = dl.download(fixData.output_dir+"debug",ncbi_id,url_list,fixData.draft_genome_file,99,5)
+   dl_path = dl.download(filePath,ncbi_id,url_list,fixData.contig_path,99,5)
 
    return fixFlag
 
@@ -419,17 +450,28 @@ def fixGem(fasta,posAry):
   return fasta
 
 
-def fixProcess(fixAry,S_arr,fixData,fileName):        #fix the draft
-    if(len(fixAry)>1):
-     #fix genome
-     fixSeq = fixGem(fixData.seq,fixAry)
-     
+def getSeq(fixAry,fixData):
+  if(len(fixAry)>1):
+    fixSeq = fixGem(fixData.seq,fixAry)   
      #save fasta
-     record = SeqRecord(
+    record = SeqRecord(
          Seq(fixSeq),
          id=fixData.contig_id,
          description = fixData.gen_desc
-     )
+    )
+    return record
+  else:
+    record = SeqRecord(
+         fixSeq.Seq,
+         id=fixData.contig_id,
+         description = fixData.gen_desc
+    )
+    return record
+
+
+def fixProcess(fixAry,S_arr,fixData,fileName):#fix the draft
+    
+    record = getSeq(fixAry,fixData)
     contig_output_filePath=write_for_new_fasta(record,fixData.output_dir+"debug",fixData.contig_id+"_modpolish")
     return contig_output_filePath
 
