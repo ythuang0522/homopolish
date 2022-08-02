@@ -462,7 +462,7 @@ def getSeq(fixAry,fixData):
     return record
   else:
     record = SeqRecord(
-         fixSeq.Seq,
+         fixData.Seq,
          id=fixData.contig_id,
          description = fixData.gen_desc
     )
