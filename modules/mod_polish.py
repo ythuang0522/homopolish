@@ -712,6 +712,3 @@ def MismatchPileup_read_bam(bam,genome_size):
                     totalCovergae +=1
                 start_pos+=1    
     return misAry,arr,totalCovergae
-
-
-
