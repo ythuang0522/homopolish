@@ -19,6 +19,19 @@ class FixSNP():
         self._bam_file = ""
         self._thread = 16
         self._gen_description = ""
+        self._contig_path = ""
+      
+
+
+
+
+    @property
+    def contig_path(self):
+        return self._contig_path
+
+    @contig_path.setter
+    def contig_path(self, value):
+        self._contig_path = value
        
        
 
