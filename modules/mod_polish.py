@@ -205,10 +205,11 @@ def catAllfasta(fixData,genFilePath,fileName):
 
 def getBamPileUp(fixData:FixSNP,fileName,threads,fasta,fastq):
     filePath = fixData.output_dir+'debug/'+fixData.contig_id
-    os.system('minimap2 -ax asm5 --cs=long -t {thread} {draft} {reference} > '.format(thread=threads, draft=fasta, reference=fastq) + filePath+'/reads.sam')
-    os.system('samtools view -S -b '+filePath+'/reads.sam > '+filePath+'/reads.bam'.format(f=fileName))
-    os.system('samtools sort '+filePath+'/reads.bam -o '+filePath+'/reads_sorted.bam')
-    os.system('samtools index '+filePath+'/reads_sorted.bam')
+    bam = filePath + '/reads_sorted.bam'
+    os.system('minimap2 -ax asm5 --cs=long -t {thread} {draft} {reference} | '
+              'samtools view -@ {thread} -S -b - | '
+              'samtools sort -@ {thread} -o {bam} -'.format(thread=threads, draft=fasta, reference=fastq, bam=bam))
+    os.system('samtools index {}'.format(bam))
     bam = filePath+'/reads_sorted.bam'
     return bam
     
