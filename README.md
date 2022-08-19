@@ -26,10 +26,10 @@ Homopolish is available in bioconda but not guaranteed to be the latest version.
 	conda create -n homopolish -c conda-forge -c bioconda homopolish
 
 ## Download virus, bacteria, or fungi sketches
-Homopolish retrieves homologous sequences by scanning microbial genomes compressed in (Mash) sketches. Three sketches of virus (74Mb), bacteria (719Mb), and fungi (74Mb) can be downloaded from the following addresses using wget or curl.
+Homopolish retrieves homologous sequences by scanning microbial genomes compressed in (Mash) sketches. Three sketches, bacteria (3.3Gb, updated on 2022/8/19) , virus (74Mb), and fungi (74Mb) can be downloaded from the following URLs using wget or curl. The previous smaller size of bacterial sketch (720Mb) is available [here](http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/bacteria_old_20220819.msh.gz).
 
-	Virus: http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/virus.msh.gz
 	Bacteria: http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/bacteria.msh.gz
+	Virus: http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/virus.msh.gz
 	Fungi: http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/fungi.msh.gz
 
 Then unzip the downloaded skeches.
