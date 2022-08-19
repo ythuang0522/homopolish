@@ -175,9 +175,9 @@ def getPos(fixData,debug_mod):
         fixary = fix_pos_homo_read_pattern(fixData,H_AllAry,R_misAry_bam,R_AllAry_bam,fixData.spPattern)
     
     #need to fix?
-    fixFlag = fixFlagFn(fixData,fixary,totalCovergae,fileName)
-    if(fixFlag == False):
-      return saveNofixSeq(fixData),False
+    #fixFlag = fixFlagFn(fixData,fixary,totalCovergae,fileName)
+    #if(fixFlag == False):
+    #return saveNofixSeq(fixData),False
 
     #star fix
     modpolish_filePath= fixProcess(fixary,H_AllAry,fixData,fileName)
