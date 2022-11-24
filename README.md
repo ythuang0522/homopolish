@@ -21,7 +21,7 @@ Homopolish is recommendated to install and run within a conda environment
 	conda env create -f environment.yml
 	conda activate homopolish
 
-Homopolish is available in bioconda and [mamba](https://mamba.readthedocs.io/en/latest/installation.html) is a more proper method to install homopolish.
+Homopolish is available in bioconda and we recommend [mamba](https://mamba.readthedocs.io/en/latest/installation.html) for installation.
 
 	mamba create -n homopolish -c conda-forge -c bioconda homopolish
 
