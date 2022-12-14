@@ -50,7 +50,7 @@ If installed from bioconda, you should directly invoke the script.
 homopolish polish -a yourgenome.fasta -s bacteria.msh -m R9.4.pkl -o youroutput
 ```
 
-You can specify particular genus and species via ```-g``` (Taxanomic names in [NCBI](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt)) without mash searching.
+You can specify particular genus and species via ```-g``` (Taxanomic names in [NCBI](https://ftp.ncbi.nlm.nih.gov/genomes/genbank/bacteria/assembly_summary.txt)), which will randomly select genomes of the same genus/species for polishing. However, we don't recommend using this argument in most cases as the autosearch often identifies more closely-related strains.
 ```
 python3 homopolish.py polish -a yourgenome.fasta -g genusname_speciesname -m R9.4.pkl -o youroutput
 ```
