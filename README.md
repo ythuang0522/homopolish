@@ -21,9 +21,18 @@ Homopolish is recommendated to install and run within a conda environment
 	conda env create -f environment.yml
 	conda activate homopolish
 
-Homopolish is available in bioconda and we recommend [mamba](https://mamba.readthedocs.io/en/latest/installation.html) for installation.
+
+Homopolish is available in bioconda.
+	
+	conda create -n homopolish_py1 -c conda-forge -c bioconda homopolish=0.4.1=pyhdfd78af_1
+
+If conda install takes too long,you can try [mamba](https://mamba.readthedocs.io/en/latest/installation.html) for installation.
 
 	mamba create -n homopolish -c conda-forge -c bioconda homopolish
+
+If you get some error when building the env, try set the channel priority and instsll again.
+        
+	conda config --set channel_priority flexible
 
 ## Download virus, bacteria, or fungi sketches
 Homopolish retrieves homologous sequences by scanning microbial genomes compressed in (Mash) sketches. Three sketches, bacteria (3.3Gb, updated on 2022/8/19) , virus (74Mb), and fungi (74Mb) can be downloaded from the following URLs using wget or curl. The previous smaller size of bacterial sketch (720Mb) is available [here](http://bioinfo.cs.ccu.edu.tw/bioinfo/mash_sketches/bacteria_old_20220819.msh.gz).
