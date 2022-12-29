@@ -24,7 +24,7 @@ Homopolish is recommendated to install and run within a conda environment
 
 Homopolish is available in bioconda.
 	
-	conda create -n homopolish_py1 -c conda-forge -c bioconda homopolish=0.4.1=pyhdfd78af_1
+	conda create -n homopolish -c conda-forge -c bioconda homopolish=0.4.1=pyhdfd78af_1
 
 If conda install takes too long, you can try [mamba](https://mamba.readthedocs.io/en/latest/installation.html) for installation.
 
