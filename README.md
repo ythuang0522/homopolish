@@ -100,6 +100,7 @@ optional arguments:
                         Minimap2 -x argument. [asm5]
   --mash_threshold MASH_THRESHOLD
                         Mash output threshold. [0.95]
+  --ani                 Ani identity [99%]
   --download_contig_nums DOWNLOAD_CONTIG_NUMS
                         How much contig to download from NCBI. [20]
   -d, --debug           Keep the information of every contig after mash, such
