@@ -92,18 +92,18 @@ def add_common_arguments(parser):
         help="Your assembly genome is metagenome. [no]"
     )
     parser.add_argument(
-        "--coverage",
+        "--ani",
         type = int,
         required  = False,
         default = 99,
-        help="Coverge. [99]"
+        help="ani identity [99]"
     )
     parser.add_argument(
         "--distance",
         type = int,
         required  = False,
         default = 5,
-        help="Ani distance. [5]"
+        help="Difference of structure (counted by ani). [5]"
     )
 
     return parser
@@ -245,13 +245,26 @@ def add_modpolish_arguments(parser):
     )
     parser.add_argument(
         "-l",
-        "--sibilings_files",
+        "--local_DB_path",
         type=str,
         required=False,
         nargs="+",
         default="",
-        help="draft siblings"
+        help="Path to your local DB"
     )
-    
+    parser.add_argument(
+        "--ani",
+        type = int,
+        required  = False,
+        default = 99,
+        help="Ani identity [99]"
+    )
+    parser.add_argument(
+        "--distance",
+        type = int,
+        required  = False,
+        default = 5,
+        help="Difference of structure (counted by ani). [5]"
+    ) 
     
     

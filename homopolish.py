@@ -28,7 +28,7 @@ def main():
     parser_polish = subparsers.add_parser('polish', help="Polish your genomes.")
     add_polish_arguments(parser_polish)
     add_common_arguments(parser_polish)
-    
+    print(parser_polish)
     parser_train = subparsers.add_parser('train', help="Train your model.")
     add_train_arguments(parser_train)
 
@@ -37,25 +37,25 @@ def main():
     add_train_data_arguments(parser_make_train_data)    
     add_common_arguments(parser_make_train_data)
 
-    
+     
     mod_polish = subparsers.add_parser('modpolish',help = "polish genome by reads")
     add_modpolish_arguments(mod_polish)
     
  
     FLAGS, unparsed = parser.parse_known_args()
-
+    print(FLAGS)
     if FLAGS.sub_command == 'polish':
         this_directory = path.abspath(path.dirname(__file__))
         __pkg_path__ = os.path.join(this_directory,FLAGS.model_path)
         polish_genome(FLAGS.mash_screen, FLAGS.assembly, __pkg_path__, FLAGS.sketch_path, FLAGS.genus, FLAGS.threads, \
-                FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums, FLAGS.debug, FLAGS.meta, FLAGS.local_DB_path,FLAGS.coverage,FLAGS.distance)
+                FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums, FLAGS.debug, FLAGS.meta, FLAGS.local_DB_path,FLAGS.ani,FLAGS.distance)
 
     elif FLAGS.sub_command == 'train':
         train_model(FLAGS.dataframe_dir, FLAGS.output_dir, FLAGS.output_prefix, FLAGS.threads,FLAGS.pacbio)
 
     elif FLAGS.sub_command == 'make_train_data':
         make_train_data(FLAGS.mash_screen, FLAGS.assembly, FLAGS.reference, FLAGS.sketch_path, FLAGS.genus, FLAGS.threads, \
-                FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums, FLAGS.debug,FLAGS.coverage,FLAGS.distance)
+                FLAGS.output_dir, FLAGS.minimap_args, FLAGS.mash_threshold, FLAGS.download_contig_nums, FLAGS.debug,FLAGS.ani,FLAGS.distance)
     
     
     elif FLAGS.sub_command == 'modpolish':
@@ -71,8 +71,9 @@ def main():
         fixData.sketch_path = FLAGS.sketch_path 
         fixData.thread = FLAGS.threads 
         fixData.output_dir = FLAGS.output_dir  
-        
-        fixData.sib_files = FLAGS.sibilings_files      
+        fixData.ani = FLAGS.ani
+        fixData.distance = FLAGS.distance
+        fixData.sib_files = FLAGS.local_DB_path
         #getPos(fixData,FLAGS.debug)
         mp.starModpolsh(fixData,FLAGS.debug)
     

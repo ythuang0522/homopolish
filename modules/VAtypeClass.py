@@ -2,7 +2,7 @@ class FixSNP():
     def __init__(self):
         self._seq = ""
         self._reads_file = ""
-        self._sibilings = ""
+        self._homologous = ""
         self._sketch_path = ""
         self._output_dir = ""
         self._mash_threshold = 0.95
@@ -20,8 +20,28 @@ class FixSNP():
         self._thread = 16
         self._gen_description = ""
         self._contig_path = ""
-      
+        self._ani = 99
+        self._distance = 5
 
+
+
+
+    @property
+    def ani(self):
+        return self._ani
+
+    @ani.setter
+    def ani(self, value):
+        self._ani = value
+
+
+    @property
+    def distance(self):
+        return self._distance
+
+    @distance.setter
+    def distance(self, value):
+        self._distance = value
 
 
 
@@ -93,12 +113,12 @@ class FixSNP():
         
 #   sibilings:draft_gem的 sibilings          
     @property
-    def sib_files(self):
-        return self._sibilings
+    def homo_files(self):
+        return self._homologous
 
-    @sib_files.setter
-    def sib_files(self, value):
-        self._sibilings = value
+    @homo_files.setter
+    def homo_files(self, value):
+        self._homologous = value
        
         
     #sketch path         
