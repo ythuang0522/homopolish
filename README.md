@@ -29,7 +29,8 @@ Homopolish is available in bioconda(flexible mode only).
 
 If conda install takes too long, you can try [mamba](https://mamba.readthedocs.io/en/latest/installation.html) for installation.
 
-	mamba create -n homopolish -c conda-forge -c bioconda homopolish
+	conda config --set channel_priority flexible
+	mamba create -n homopolish -c conda-forge -c bioconda -c defaults homopolish
 
 
 ## Download virus, bacteria, or fungi sketches
