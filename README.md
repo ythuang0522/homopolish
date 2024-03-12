@@ -25,12 +25,11 @@ Homopolish is recommendated to install and run within a conda environment
 Homopolish is available in bioconda(flexible mode only).
 
 	conda config --set channel_priority flexible
-	conda create -n homopolish -c conda-forge -c bioconda homopolish=0.4.1=pyhdfd78af_1
+ 	conda create -n homopolish -c conda-forge -c bioconda -c defaults more-itertools=8.4.0 homopolish=0.4.1
 
 If conda install takes too long, you can try [mamba](https://mamba.readthedocs.io/en/latest/installation.html) for installation.
 
-	conda config --set channel_priority flexible
-	mamba create -n homopolish -c conda-forge -c bioconda -c defaults homopolish
+	mamba create -n homopolish_mamba_auto_0_4_1 -c conda-forge -c bioconda -c defaults python==3.8.16 homopolish==0.4.1
 
 
 ## Download virus, bacteria, or fungi sketches
