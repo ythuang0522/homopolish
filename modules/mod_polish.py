@@ -485,9 +485,9 @@ def MismatchPileup(file_name, genome_size):
     LONG_DELETION_LENGTH = 50
     misAry = np.array([np.array([0,np.zeros(8)])for i in range(genome_size)])
     ins_len = 7
-    arr = np.zeros((genome_size, 9), dtype=np.int)
-    coverage = np.zeros(genome_size, dtype=np.int)
-    ins = np.zeros((genome_size, ins_len, 4), dtype=np.int)
+    arr = np.zeros((genome_size, 9), dtype=np.int64)
+    coverage = np.zeros(genome_size, dtype=np.int64)
+    ins = np.zeros((genome_size, ins_len, 4), dtype=np.int64)
     over_ins = [] 
     with open(file_name, 'r') as f:        
         for line in f:
@@ -598,9 +598,9 @@ def MismatchPileup_read_bam(bam,genome_size):
     LONG_DELETION_LENGTH = 50
     misAry = np.array([np.array([0,np.zeros(8)])for i in range(genome_size)])
     ins_len = 7
-    arr = np.zeros((genome_size, 9,3), dtype=np.int)
-    coverage = np.zeros(genome_size, dtype=np.int)
-    ins = np.zeros((genome_size, ins_len, 4), dtype=np.int)
+    arr = np.zeros((genome_size, 9,3), dtype=np.int64)
+    coverage = np.zeros(genome_size, dtype=np.int64)
+    ins = np.zeros((genome_size, ins_len, 4), dtype=np.int64)
     over_ins = []
     totalCovergae = 0
     bamData = pysam.AlignmentFile(bam,'rb')

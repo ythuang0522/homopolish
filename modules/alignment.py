@@ -21,9 +21,9 @@ def pileup(paf, genome_size):
         Ins: genome each base [0-2]: 1st Ins, 2nd Ins, 3rd Ins; [0-3]: ATCG
     """
     ins_len = 7
-    arr = np.zeros((genome_size, 5), dtype=np.int)
-    coverage = np.zeros(genome_size, dtype=np.int)
-    ins = np.zeros((genome_size, ins_len, 4), dtype=np.int)
+    arr = np.zeros((genome_size, 5), dtype=np.int64)
+    coverage = np.zeros(genome_size, dtype=np.int64)
+    ins = np.zeros((genome_size, ins_len, 4), dtype=np.int64)
     
     over_ins = []  
     with open(paf, 'r') as f:        
